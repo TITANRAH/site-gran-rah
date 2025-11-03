@@ -1,6 +1,11 @@
 ---
 import { Picture } from "astro:assets";
-import { formatDate, stripHtml, truncateWords, decodeHtmlEntities } from "@/helpers";
+import {
+  formatDate,
+  stripHtml,
+  truncateWords,
+  decodeHtmlEntities,
+} from "@/helpers";
 import type { News } from "@/types";
 
 interface Props {
@@ -16,42 +21,39 @@ const { news, index = 0 } = Astro.props;
   data-aos="fade-up"
   data-aos-delay={index * 100}
 >
-  {/* Imagen */}
-  {news.featured_images &&
-    typeof news.featured_images === "object" &&
-    "large" in news.featured_images && (
-      <div class="relative overflow-hidden h-56">
-        <Picture
-          src={news.featured_images.large.url}
-          alt={news.title.rendered}
-          width={news.featured_images.large.width}
-          height={news.featured_images.large.height}
-          formats={["avif", "webp"]}
-          class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-        />
-        {/* Overlay sutil */}
-        <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-      </div>
-    )}
+  {
+    news.featured_images &&
+      typeof news.featured_images === "object" &&
+      "large" in news.featured_images && (
+        <div class="relative overflow-hidden h-56">
+          <Picture
+            src={news.featured_images.large.url}
+            alt={news.title.rendered}
+            width={news.featured_images.large.width}
+            height={news.featured_images.large.height}
+            formats={["avif", "webp"]}
+            class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+          />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+        </div>
+      )
+  }
 
-  {/* Contenido */}
   <div class="p-6">
-    {/* Fecha */}
     <p class="text-gray-400 text-sm mb-3">
       {formatDate(news.date)}
     </p>
 
-    {/* Título */}
-    <h3 class="text-xl font-bold text-white mb-3 group-hover:text-accent-gold transition-colors line-clamp-2">
+    <h3
+      class="text-xl font-bold text-white mb-3 group-hover:text-accent-gold transition-colors line-clamp-2"
+    >
       {decodeHtmlEntities(news.title.rendered)}
     </h3>
 
-    {/* Excerpt */}
     <p class="text-gray-300 mb-4 line-clamp-3">
       {truncateWords(stripHtml(news.excerpt.rendered), 20)}
     </p>
 
-    {/* Botón */}
     <a
       href={`/noticia/${news.slug}`}
       class="text-accent-gold hover:text-accent-gold-hover font-bold inline-flex items-center gap-2 transition-colors"
@@ -67,8 +69,7 @@ const { news, index = 0 } = Astro.props;
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
-          d="M9 5l7 7-7 7"
-        />
+          d="M9 5l7 7-7 7"></path>
       </svg>
     </a>
   </div>

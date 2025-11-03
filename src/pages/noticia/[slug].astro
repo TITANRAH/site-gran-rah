@@ -4,7 +4,6 @@ import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
 import { formatDate, decodeHtmlEntities } from "@/helpers";
 
-// SSR: renderiza bajo demanda
 export const prerender = false;
 
 const { slug } = Astro.params;
@@ -18,10 +17,8 @@ if (!news.success) return Astro.redirect("/404");
 
 const { title, featured_images, content, date } = news.data;
 
-// Decodificar título
 const decodedTitle = decodeHtmlEntities(title.rendered);
 
-// Obtener bgImage de forma segura
 const bgImage =
   featured_images &&
   typeof featured_images === "object" &&
@@ -32,7 +29,6 @@ const bgImage =
 
 <Layout title={decodedTitle} bgImage={bgImage} subtitle={decodedTitle}>
   <article class="space-y-8 max-w-4xl mx-auto px-4 py-8">
-    {/* Fecha de publicación */}
     <div class="flex items-center justify-center gap-3" data-aos="fade-down">
       <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-20"></div>
       <p class="text-gray-400 text-sm uppercase tracking-wider">
@@ -41,7 +37,6 @@ const bgImage =
       <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-20"></div>
     </div>
 
-    {/* Imagen destacada */}
     {
       featured_images &&
         typeof featured_images === "object" &&
@@ -58,13 +53,11 @@ const bgImage =
               formats={["avif", "webp"]}
               class="w-full"
             />
-            {/* Borde decorativo */}
             <div class="absolute inset-0 border-4 border-accent-gold/20 rounded-2xl pointer-events-none" />
           </div>
         )
     }
 
-    {/* Contenido de la noticia */}
     <div
       class="prose prose-lg prose-invert max-w-none"
       data-aos="fade-up"
@@ -76,14 +69,12 @@ const bgImage =
       />
     </div>
 
-    {/* Separador final */}
     <div class="flex items-center justify-center gap-4 pt-8" data-aos="fade-up">
       <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
       <div class="w-2 h-2 bg-accent-gold rounded-full animate-pulse"></div>
       <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
     </div>
 
-    {/* Botón volver */}
     <div class="text-center pt-8" data-aos="fade-up">
       <a
         href="/noticias"
@@ -104,7 +95,6 @@ const bgImage =
 </Layout>
 
 <style>
-  /* Estilos para el contenido de WordPress */
   :global(.prose h1),
   :global(.prose h2),
   :global(.prose h3),

@@ -157,6 +157,13 @@ export function formatEventDateFull(date: Date): string {
   }).format(date);
 }
 
+export function formatPrice(price: number): string {
+  return new Intl.NumberFormat('es-CL', {
+    style: 'currency',
+    currency: 'CLP'
+  }).format(price);
+}
+
 /**
  * Formatea una fecha para el timeline de eventos (tarjeta de fecha)
  * @param date - Objeto Date

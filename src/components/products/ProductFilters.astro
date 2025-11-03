@@ -9,30 +9,36 @@ const { categories, activeCategory = "todos" } = Astro.props;
 
 <div class="filters-container mb-12">
   <div class="container mx-auto px-4">
-    <h3 class="text-2xl font-bebas text-accent-gold mb-6 tracking-wider text-center md:text-left">
+    <h3
+      class="text-2xl font-bebas text-accent-gold mb-6 tracking-wider text-center md:text-left"
+    >
       Filtrar por Categoría
     </h3>
 
-    <div class="filters-wrapper flex flex-wrap gap-3 justify-center md:justify-start">
-      <!-- Botón "Todos" -->
+    <div
+      class="filters-wrapper flex flex-wrap gap-3 justify-center md:justify-start"
+    >
       <a
         href="/tienda#productos"
         class={`filter-btn ${activeCategory === "todos" ? "active" : ""}`}
       >
         <span class="filter-label">Todos los Productos</span>
-        <span class="filter-count">{categories.reduce((sum, cat) => sum + cat.count, 0)}</span>
+        <span class="filter-count"
+          >{categories.reduce((sum, cat) => sum + cat.count, 0)}</span
+        >
       </a>
 
-      <!-- Botones de categorías dinámicas -->
-      {categories.map((category) => (
-        <a
-          href={`/tienda?categoria=${category.slug}#productos`}
-          class={`filter-btn ${activeCategory === category.slug ? "active" : ""}`}
-        >
-          <span class="filter-label">{category.name}</span>
-          <span class="filter-count">{category.count}</span>
-        </a>
-      ))}
+      {
+        categories.map((category) => (
+          <a
+            href={`/tienda?categoria=${category.slug}#productos`}
+            class={`filter-btn ${activeCategory === category.slug ? "active" : ""}`}
+          >
+            <span class="filter-label">{category.name}</span>
+            <span class="filter-count">{category.count}</span>
+          </a>
+        ))
+      }
     </div>
   </div>
 </div>

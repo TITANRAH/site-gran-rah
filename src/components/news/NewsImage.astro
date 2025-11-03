@@ -21,15 +21,18 @@ const { featuredImages, title, isFeatured = false } = Astro.props;
     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
   />
 
-  <!-- Overlay con gradiente -->
-  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent lg:bg-gradient-to-r" />
+  <div
+    class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent lg:bg-gradient-to-r"
+  >
+  </div>
 
-  <!-- Badge Destacada -->
-  {isFeatured && (
-    <div class="absolute top-4 left-4">
-      <span class="px-3 py-1 bg-accent-gold text-black font-bold text-xs uppercase rounded-full shadow-lg">
-        ⭐ Destacada
-      </span>
-    </div>
-  )}
+  {
+    isFeatured && (
+      <div class="absolute top-4 left-4">
+        <span class="px-3 py-1 bg-accent-gold text-black font-bold text-xs uppercase rounded-full shadow-lg">
+          ⭐ Destacada
+        </span>
+      </div>
+    )
+  }
 </div>

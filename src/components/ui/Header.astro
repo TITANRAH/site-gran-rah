@@ -12,14 +12,12 @@ const { bgImage, subtitle } = Astro.props;
 ---
 
 <header class="relative">
-  <!-- Navegación Sticky -->
   <nav
     id="main-nav"
     class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
   >
     <div class="max-w-7xl mx-auto px-4 lg:px-10">
       <div class="flex items-center justify-between py-2">
-        <!-- Logo -->
         <a href="/" class="transition-transform hover:scale-105 duration-300">
           <Picture
             src={logo}
@@ -30,12 +28,10 @@ const { bgImage, subtitle } = Astro.props;
           />
         </a>
 
-        <!-- Desktop Menu -->
         <div class="hidden lg:block">
           <MainNav />
         </div>
 
-        <!-- Mobile Hamburger Button -->
         <button
           id="menu-toggle"
           class="lg:hidden text-white p-2 hover:text-accent-gold transition-colors"
@@ -71,7 +67,6 @@ const { bgImage, subtitle } = Astro.props;
       </div>
     </div>
 
-    <!-- Borde dorado inferior -->
     <div
       class="h-0.5 bg-gradient-to-r from-transparent via-accent-gold to-transparent opacity-0 transition-opacity duration-300"
       id="nav-border"
@@ -79,7 +74,6 @@ const { bgImage, subtitle } = Astro.props;
     </div>
   </nav>
 
-  <!-- Mobile Menu Sidebar -->
   <div
     id="mobile-menu"
     class="fixed top-0 right-0 h-full w-72 bg-black/98 backdrop-blur-lg transform translate-x-full transition-transform duration-300 z-40 lg:hidden shadow-2xl"
@@ -87,33 +81,30 @@ const { bgImage, subtitle } = Astro.props;
     <div class="pt-20 px-6">
       <MainNav />
     </div>
-    <!-- Decoración -->
-    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent-gold to-transparent"></div>
+    <div
+      class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent-gold to-transparent"
+    >
+    </div>
   </div>
 
-  <!-- Overlay para cerrar el menú -->
   <div
     id="menu-overlay"
     class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
   >
   </div>
 
-  <!-- Hero Section con imagen de fondo -->
   <div class="min-h-[400px] lg:min-h-[600px] relative pt-16 lg:pt-24 pb-20">
-    <!-- Imagen de fondo -->
     <div
       class="inset-0 absolute bg-center bg-cover"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
     </div>
 
-    <!-- Overlay con gradiente -->
     <div
       class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black/90"
     >
     </div>
 
-    <!-- Contenido del Hero -->
     <div class="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
       <div class="text-center">
         <h1
@@ -123,7 +114,6 @@ const { bgImage, subtitle } = Astro.props;
         >
           {subtitle}
         </h1>
-        <!-- Línea decorativa dorada -->
         <div
           class="w-24 h-1 bg-accent-gold mx-auto mb-6"
           data-aos="zoom-in"
@@ -133,7 +123,6 @@ const { bgImage, subtitle } = Astro.props;
       </div>
     </div>
 
-    <!-- Partículas decorativas -->
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div
         class="absolute top-20 left-10 w-2 h-2 bg-accent-gold rounded-full animate-pulse"
@@ -154,7 +143,6 @@ const { bgImage, subtitle } = Astro.props;
 </header>
 
 <script>
-  // Efecto de scroll para el navbar
   function handleScroll() {
     const nav = document.getElementById("main-nav");
     const navBorder = document.getElementById("nav-border");
@@ -163,13 +151,11 @@ const { bgImage, subtitle } = Astro.props;
     if (!nav || !navBorder || !logo) return;
 
     if (window.scrollY > 50) {
-      // Navbar scrolleado
       nav.classList.add("bg-black/95", "shadow-2xl");
       navBorder.classList.add("opacity-100");
       logo.classList.add("w-12", "lg:w-24");
       logo.classList.remove("w-16", "lg:w-28");
     } else {
-      // Navbar en top
       nav.classList.remove("bg-black/95", "shadow-2xl");
       navBorder.classList.remove("opacity-100");
       logo.classList.remove("w-12", "lg:w-24");
@@ -177,7 +163,6 @@ const { bgImage, subtitle } = Astro.props;
     }
   }
 
-  // Manejo del menú móvil
   function initMobileMenu() {
     const menuToggle = document.getElementById("menu-toggle");
     const mobileMenu = document.getElementById("mobile-menu");
@@ -187,7 +172,6 @@ const { bgImage, subtitle } = Astro.props;
 
     if (!menuToggle || !mobileMenu || !menuOverlay) return;
 
-    // Función para abrir el menú
     function openMenu() {
       mobileMenu?.classList.remove("translate-x-full");
       mobileMenu?.classList.add("translate-x-0");
@@ -198,7 +182,6 @@ const { bgImage, subtitle } = Astro.props;
       document.body.style.overflow = "hidden";
     }
 
-    // Función para cerrar el menú
     function closeMenu() {
       mobileMenu?.classList.add("translate-x-full");
       mobileMenu?.classList.remove("translate-x-0");
@@ -209,7 +192,6 @@ const { bgImage, subtitle } = Astro.props;
       document.body.style.overflow = "";
     }
 
-    // Toggle del menú
     menuToggle.addEventListener("click", () => {
       if (mobileMenu?.classList.contains("translate-x-full")) {
         openMenu();
@@ -218,10 +200,8 @@ const { bgImage, subtitle } = Astro.props;
       }
     });
 
-    // Cerrar al hacer clic en el overlay
     menuOverlay.addEventListener("click", closeMenu);
 
-    // Cerrar al hacer clic en un enlace del menú
     const menuLinks = mobileMenu?.querySelectorAll("a");
     menuLinks?.forEach((link) => {
       link.addEventListener("click", () => {
@@ -230,12 +210,10 @@ const { bgImage, subtitle } = Astro.props;
     });
   }
 
-  // Ejecutar al cargar
   handleScroll();
   initMobileMenu();
   window.addEventListener("scroll", handleScroll);
 
-  // Reinicializar después de transiciones de Astro
   document.addEventListener("astro:after-swap", () => {
     handleScroll();
     initMobileMenu();

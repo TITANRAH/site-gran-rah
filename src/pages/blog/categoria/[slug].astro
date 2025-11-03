@@ -4,26 +4,15 @@ import Layout from "@/layouts/Layout.astro";
 import PostCard from "@/components/blog/PostCard.astro";
 
 export async function getStaticPaths() {
-  // EN LA URL AL PINCHAR ENTRADAS EN LA URL VEREMOS QUE VIENE
-  // UN tag_ID QUE ES EL ID DE LA CATEGORIA
-  // PARA QUITAR LA "SIN CATEGORIA" USO EL FILTRO
-  //
   const rest = await fetch(
     `${import.meta.env.API_URL}/categories?_fields=slug&exclude=1`
   );
   const json = await rest.json();
   const categories = CategoriesSlugSchema.parse(json);
   return categories.map((category) => ({
-    // en la categoria usamos el slug como parametro
-    // y le decimos que el slug viene de category
     params: { slug: category.slug },
   }));
 }
-
-// tomo el param
-// hago la peticion a la api
-// parseo el json
-// parseo el json con el schema de CategorySchema donde agreuge el id que viene de la api
 
 const { slug } = Astro.params;
 const catUrl = `${import.meta.env.API_URL}/categories?slug=${slug}`;
@@ -36,28 +25,31 @@ const postJson = await postResponse.json();
 
 const posts = PostsSchema.parse(postJson);
 
-// Obtener imagen de fondo del primer post que tenga featured_images
-let bgImage = '';
+let bgImage = "";
 const firstPostWithImage = posts.find(
-  post => post.featured_images && typeof post.featured_images === 'object' && 'full' in post.featured_images
+  (post) =>
+    post.featured_images &&
+    typeof post.featured_images === "object" &&
+    "full" in post.featured_images
 );
-if (firstPostWithImage && typeof firstPostWithImage.featured_images === 'object') {
+if (
+  firstPostWithImage &&
+  typeof firstPostWithImage.featured_images === "object"
+) {
   bgImage = firstPostWithImage.featured_images.full.url;
 }
 ---
 
-<Layout
-  title={category.name}
-  subtitle={category.name}
-  bgImage={bgImage}
->
+<Layout title={category.name} subtitle={category.name} bgImage={bgImage}>
   <div class="container mx-auto px-4 py-8">
-    {posts.length > 0 ? (
-      posts.map((post) => <PostCard post={post} />)
-    ) : (
-      <p class="text-center text-gray-400 text-lg">
-        No hay posts en esta categoría.
-      </p>
-    )}
+    {
+      posts.length > 0 ? (
+        posts.map((post) => <PostCard post={post} />)
+      ) : (
+        <p class="text-center text-gray-400 text-lg">
+          No hay posts en esta categoría.
+        </p>
+      )
+    }
   </div>
 </Layout>

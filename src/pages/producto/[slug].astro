@@ -3,7 +3,6 @@ import { ProductMusicSchema } from "@/types";
 import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
 
-// SSR: renderiza bajo demanda
 export const prerender = false;
 
 const { slug } = Astro.params;
@@ -17,24 +16,20 @@ if (!product.success) return Astro.redirect("/404");
 
 const { title, featured_images, acf, content, product_categories } = product.data;
 
-// Decodificar título
 const productTitle = title.rendered;
 
-// Extraer campos ACF comunes
 let isForSale = false;
-let price = 0;
+let price: number = 0;
 let description = "";
 let spotifyUrl = "";
 let youtubeUrl = "";
 let productImage = "";
 
-// Campos específicos de gorras
 let color = "";
 let size = "";
 let theme = "";
 let visor = "";
 
-// Campos específicos de poleras/polerones
 let sizes: string[] = [];
 let colors: string[] = [];
 let material = "";
@@ -46,13 +41,11 @@ if (acf && !Array.isArray(acf)) {
   spotifyUrl = acf.url_spotify || "";
   youtubeUrl = acf.url_youtube || "";
 
-  // Campos de gorras
   color = acf.color || "";
   size = acf.size || "";
   theme = acf.theme || "";
   visor = acf.visor || "";
 
-  // Campos de poleras/polerones - manejar tanto string como array
   if (acf.sizes) {
     sizes = typeof acf.sizes === 'string'
       ? acf.sizes.split(',').map(s => s.trim()).filter(s => s.length > 0)
@@ -70,40 +63,32 @@ if (acf && !Array.isArray(acf)) {
   }
 }
 
-// Fallback a featured_images
 if (!productImage && featured_images && typeof featured_images === 'object' && 'full' in featured_images) {
   productImage = featured_images.full.url;
 }
 
-// Determinar tipo de producto - priorizar basándose en categoría
 const isMusic = !!(spotifyUrl || youtubeUrl);
-// Para evitar mostrar dos secciones, priorizar: si tiene sizes/colors/material es ropa, sino si tiene color/visor/theme es gorra
 const isClothing = !!(sizes.length > 0 || colors.length > 0 || material);
 const isCap = !isClothing && !!(color || visor || theme);
 
-// Formatear precio
 const formattedPrice = new Intl.NumberFormat('es-CL', {
   style: 'currency',
   currency: 'CLP'
 }).format(price);
 
-// WhatsApp URL
 const whatsappMessage = encodeURIComponent(
   `Hola! Me interesa ${productTitle}${isForSale && price > 0 ? ` por ${formattedPrice}` : ''}. ¿Está disponible?`
 );
 const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
 
-// Subtítulo dinámico basado en la categoría
 let subtitle = "Producto";
 if (isMusic) {
   subtitle = "Disco";
 } else if (product_categories && product_categories.length > 0) {
-  // Verificar si product_categories es un array de objetos o de números
   const firstCategory = product_categories[0];
   if (typeof firstCategory === 'object' && 'name' in firstCategory) {
     subtitle = firstCategory.name || "Producto";
   } else {
-    // Si es un array de IDs, hacer fetch de la categoría
     try {
       const categoryResponse = await fetch(`${import.meta.env.API_URL}/product_categories/${firstCategory}`);
       const categoryData = await categoryResponse.json();
@@ -118,10 +103,8 @@ if (isMusic) {
 <Layout title={productTitle} bgImage={productImage} subtitle={subtitle}>
   <article class="max-w-7xl mx-auto px-4 py-8 space-y-12">
 
-    {/* Header con información principal del producto */}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
 
-      {/* Columna izquierda: Imagen del producto */}
       <div class="space-y-6" data-aos="fade-right">
         {productImage ? (
           <div class="relative overflow-hidden rounded-2xl shadow-2xl group">
@@ -133,10 +116,8 @@ if (isMusic) {
               formats={["avif", "webp"]}
               class="w-full aspect-square object-cover"
             />
-            {/* Borde decorativo */}
             <div class="absolute inset-0 border-4 border-accent-gold/20 rounded-2xl pointer-events-none group-hover:border-accent-gold/40 transition-colors duration-300"></div>
 
-            {/* Badge de venta */}
             {isForSale && (
               <div class="absolute top-6 right-6 bg-accent-gold text-black px-4 py-2 rounded-full text-sm font-black uppercase tracking-wider shadow-2xl">
                 En Venta
@@ -152,7 +133,6 @@ if (isMusic) {
           </div>
         )}
 
-        {/* Botones de streaming - Solo para música */}
         {isMusic && (
           <div class="grid grid-cols-2 gap-4">
             {spotifyUrl && (
@@ -185,10 +165,8 @@ if (isMusic) {
         )}
       </div>
 
-      {/* Columna derecha: Información del producto */}
       <div class="space-y-8" data-aos="fade-left">
 
-        {/* Título */}
         <div>
           <h1 class="text-5xl md:text-6xl font-bebas text-accent-gold mb-4 tracking-wider leading-tight">
             {productTitle}
@@ -196,7 +174,6 @@ if (isMusic) {
           <div class="h-1 w-24 bg-accent-gold rounded-full"></div>
         </div>
 
-        {/* Características específicas de gorras */}
         {isCap && (
           <div class="bg-secondary-bg rounded-2xl p-8 border-2 border-accent-gold/30">
             <h2 class="text-2xl font-bebas text-accent-gold mb-6 tracking-wider">Características</h2>
@@ -258,7 +235,6 @@ if (isMusic) {
           </div>
         )}
 
-        {/* Características específicas de poleras/polerones */}
         {isClothing && (
           <div class="bg-secondary-bg rounded-2xl p-8 border-2 border-accent-gold/30">
             <h2 class="text-2xl font-bebas text-accent-gold mb-6 tracking-wider">Características</h2>
@@ -332,7 +308,6 @@ if (isMusic) {
           </div>
         )}
 
-        {/* Precio y botón de compra (siempre visible si hay precio) */}
         {isForSale && price > 0 && (
           <div class="bg-secondary-bg rounded-2xl p-8 border-2 border-accent-gold/30 space-y-4">
             <div class="flex items-center justify-between">
@@ -359,7 +334,6 @@ if (isMusic) {
           </div>
         )}
 
-        {/* Descripción/Lista de canciones - Solo si existe */}
         {description && (
           <div class="bg-secondary-bg rounded-2xl p-8 border-2 border-accent-gold/30">
             <h2 class="text-2xl font-bebas text-accent-gold mb-4 tracking-wider flex items-center gap-2">
@@ -377,7 +351,6 @@ if (isMusic) {
           </div>
         )}
 
-        {/* Contenido adicional del producto */}
         {content && content.rendered && content.rendered.trim() !== "" && (
           <div class="bg-secondary-bg rounded-2xl p-8 border-2 border-accent-gold/30">
             <div class="prose prose-invert max-w-none" set:html={content.rendered} />
@@ -386,14 +359,12 @@ if (isMusic) {
       </div>
     </div>
 
-    {/* Separador final */}
     <div class="flex items-center justify-center gap-4 pt-8" data-aos="fade-up">
       <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
       <div class="w-2 h-2 bg-accent-gold rounded-full animate-pulse"></div>
       <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
     </div>
 
-    {/* Botones de navegación */}
     <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8" data-aos="fade-up">
       <a
         href="/tienda"
@@ -428,7 +399,6 @@ if (isMusic) {
 </Layout>
 
 <style>
-  /* Estilos para la lista de canciones (solo música) */
   :global(.tracklist ol) {
     list-style: none;
     counter-reset: track-counter;
@@ -472,7 +442,6 @@ if (isMusic) {
     line-height: 1.5;
   }
 
-  /* Estilos para el contenido adicional */
   :global(.prose h1),
   :global(.prose h2),
   :global(.prose h3),

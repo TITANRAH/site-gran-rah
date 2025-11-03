@@ -15,17 +15,19 @@ const currentPath = Astro.url.pathname;
 
 const isActive = (href: string) => {
   if (href === "/") return currentPath === "/";
-  // No verificar el hash aquí porque en SSR no está disponible
-  // La activación del hash se manejará con JavaScript del lado del cliente
   if (href.includes("#")) {
     const basePath = href.split("#")[0];
-    return currentPath === basePath || currentPath === basePath.replace(/\/$/, "");
+    return (
+      currentPath === basePath || currentPath === basePath.replace(/\/$/, "")
+    );
   }
   return currentPath.startsWith(href);
 };
 ---
 
-<nav class="flex flex-col lg:flex-row gap-4 lg:gap-3 items-start lg:items-center w-full lg:w-auto">
+<nav
+  class="flex flex-col lg:flex-row gap-4 lg:gap-3 items-start lg:items-center w-full lg:w-auto"
+>
   {
     navigation.map(({ name, href }) => (
       <a
@@ -54,45 +56,40 @@ const isActive = (href: string) => {
   function updateActiveLinks() {
     const currentPath = window.location.pathname;
     const currentHash = window.location.hash;
-    const links = document.querySelectorAll('[data-nav-link]');
+    const links = document.querySelectorAll("[data-nav-link]");
 
     links.forEach((link) => {
-      const href = link.getAttribute('data-href') || '';
+      const href = link.getAttribute("data-href") || "";
       let isActive = false;
 
-      // Si el href contiene un hash (ej: /#musica)
-      if (href.includes('#')) {
-        const [basePath, hash] = href.split('#');
-        const isOnBasePath = currentPath === basePath || currentPath === basePath.replace(/\/$/, '') || (currentPath === '/' && basePath === '');
-        // Solo está activo si estamos en la página correcta Y el hash coincide
+      if (href.includes("#")) {
+        const [basePath, hash] = href.split("#");
+        const isOnBasePath =
+          currentPath === basePath ||
+          currentPath === basePath.replace(/\/$/, "") ||
+          (currentPath === "/" && basePath === "");
         isActive = isOnBasePath && currentHash === `#${hash}`;
-      }
-      // Para el enlace de inicio, solo está activo si NO hay hash en la URL
-      else if (href === '/') {
-        isActive = currentPath === '/' && !currentHash;
-      }
-      // Para otros enlaces normales
-      else {
-        isActive = href === '/' ? currentPath === '/' : currentPath.startsWith(href);
+      } else if (href === "/") {
+        isActive = currentPath === "/" && !currentHash;
+      } else {
+        isActive =
+          href === "/" ? currentPath === "/" : currentPath.startsWith(href);
       }
 
-      // Actualizar clases
       if (isActive) {
-        link.classList.remove('text-white', 'border-l-transparent');
-        link.classList.add('text-accent-gold', 'border-l-accent-gold');
+        link.classList.remove("text-white", "border-l-transparent");
+        link.classList.add("text-accent-gold", "border-l-accent-gold");
       } else {
-        link.classList.remove('text-accent-gold', 'border-l-accent-gold');
-        link.classList.add('text-white', 'border-l-transparent');
+        link.classList.remove("text-accent-gold", "border-l-accent-gold");
+        link.classList.add("text-white", "border-l-transparent");
       }
     });
   }
 
-  // Actualizar cuando cambia el hash o la página
   updateActiveLinks();
-  window.addEventListener('hashchange', updateActiveLinks);
-  window.addEventListener('popstate', updateActiveLinks);
+  window.addEventListener("hashchange", updateActiveLinks);
+  window.addEventListener("popstate", updateActiveLinks);
 
-  // Actualizar después de las transiciones de Astro
-  document.addEventListener('astro:after-swap', updateActiveLinks);
-  document.addEventListener('astro:page-load', updateActiveLinks);
+  document.addEventListener("astro:after-swap", updateActiveLinks);
+  document.addEventListener("astro:page-load", updateActiveLinks);
 </script>

@@ -7,7 +7,6 @@ import ContactForm from "@/components/contact/ContactForm.astro";
 import AllProducts from "@/components/products/AllProducts.astro";
 import { HomePageSchema } from "@/types";
 
-// SSG: se pre-renderiza en build time
 export const prerender = true;
 
 const url = `${import.meta.env.API_URL}/pages?slug=inicio`;

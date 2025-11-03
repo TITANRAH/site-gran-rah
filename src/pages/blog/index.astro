@@ -3,10 +3,8 @@ import Layout from "@/layouts/Layout.astro";
 import PostCard from "@/components/blog/PostCard.astro";
 import { PostsSchema, HomePageSchema } from "@/types";
 
-// SSR: renderiza bajo demanda
 export const prerender = false;
 
-// Obtener datos de la página de blog desde WordPress
 const pageUrl = `${import.meta.env.API_URL}/pages?slug=blog`;
 const pageResponse = await fetch(pageUrl);
 const pageJson = await pageResponse.json();
@@ -16,7 +14,11 @@ const parsedPageData = HomePageSchema.parse(pageJson[0]);
 const title = parsedPageData.title.rendered;
 
 let subtitle = "";
-if (parsedPageData.acf && !Array.isArray(parsedPageData.acf) && parsedPageData.acf.title) {
+if (
+  parsedPageData.acf &&
+  !Array.isArray(parsedPageData.acf) &&
+  parsedPageData.acf.title
+) {
   subtitle = parsedPageData.acf.title;
 }
 
@@ -40,19 +42,16 @@ if (
   bgImage = parsedPageData.featured_images.full.url;
 }
 
-// Obtener parámetro de página desde URL (?page=2)
-const currentPage = parseInt(Astro.url.searchParams.get('page') || '1');
+const currentPage = parseInt(Astro.url.searchParams.get("page") || "1");
 const perPage = 10;
 
-// WordPress usa 'page' para paginación en la API REST
 const url = `${import.meta.env.API_URL}/posts?per_page=${perPage}&page=${currentPage}`;
 console.log("Fetching posts from:", url);
 
 const response = await fetch(url);
 
-// WordPress devuelve headers con info de paginación
-const totalPosts = parseInt(response.headers.get('X-WP-Total') || '0');
-const totalPages = parseInt(response.headers.get('X-WP-TotalPages') || '1');
+const totalPosts = parseInt(response.headers.get("X-WP-Total") || "0");
+const totalPages = parseInt(response.headers.get("X-WP-TotalPages") || "1");
 
 const json = await response.json();
 const posts = PostsSchema.parse(json);
@@ -60,93 +59,91 @@ const posts = PostsSchema.parse(json);
 
 <Layout title={title} subtitle={subtitle} bgImage={bgImage}>
   <div class="container mx-auto px-4 py-8">
-    {/* Posts */}
     <div class="space-y-8">
       {posts.map((post) => <PostCard post={post} />)}
     </div>
 
-    {/* Si no hay posts */}
-    {posts.length === 0 && (
-      <p class="text-center text-gray-400 text-lg">
-        No hay posts disponibles en esta página.
-      </p>
-    )}
+    {
+      posts.length === 0 && (
+        <p class="text-center text-gray-400 text-lg">
+          No hay posts disponibles en esta página.
+        </p>
+      )
+    }
 
-    {/* Navegación de páginas */}
-    {totalPages > 1 && (
-      <nav class="flex justify-center gap-4 mt-12 items-center flex-wrap">
-        {/* Botón Anterior */}
-        {currentPage > 1 ? (
-          <a
-            href={currentPage === 2 ? '/blog' : `/blog?page=${currentPage - 1}`}
-            class="btn-gold px-6 py-3"
-          >
-            ← Anterior
-          </a>
-        ) : (
-          <span class="px-6 py-3 text-gray-500 cursor-not-allowed">
-            ← Anterior
-          </span>
-        )}
+    {
+      totalPages > 1 && (
+        <nav class="flex justify-center gap-4 mt-12 items-center flex-wrap">
+          {currentPage > 1 ? (
+            <a
+              href={
+                currentPage === 2 ? "/blog" : `/blog?page=${currentPage - 1}`
+              }
+              class="btn-gold px-6 py-3"
+            >
+              ← Anterior
+            </a>
+          ) : (
+            <span class="px-6 py-3 text-gray-500 cursor-not-allowed">
+              ← Anterior
+            </span>
+          )}
 
-        {/* Números de página */}
-        <div class="flex gap-2">
-          {(() => {
-            const maxVisiblePages = Math.min(totalPages, 7);
-            const pages = [];
+          <div class="flex gap-2">
+            {(() => {
+              const maxVisiblePages = Math.min(totalPages, 7);
+              const pages = [];
 
-            for (let i = 0; i < maxVisiblePages; i++) {
-              let pageNum;
+              for (let i = 0; i < maxVisiblePages; i++) {
+                let pageNum;
 
-              // Lógica para mostrar páginas relevantes
-              if (totalPages < 8) {
-                pageNum = i + 1;
-              } else if (currentPage < 5) {
-                pageNum = i + 1;
-              } else if (currentPage > totalPages - 4) {
-                pageNum = totalPages - 6 + i;
-              } else {
-                pageNum = currentPage - 3 + i;
+                if (totalPages < 8) {
+                  pageNum = i + 1;
+                } else if (currentPage < 5) {
+                  pageNum = i + 1;
+                } else if (currentPage > totalPages - 4) {
+                  pageNum = totalPages - 6 + i;
+                } else {
+                  pageNum = currentPage - 3 + i;
+                }
+
+                const isCurrentPage = pageNum === currentPage;
+                const href = pageNum === 1 ? "/blog" : `/blog?page=${pageNum}`;
+
+                pages.push(
+                  <a
+                    href={href}
+                    class={`px-4 py-2 rounded transition-colors ${
+                      isCurrentPage
+                        ? "bg-accent-gold text-black font-bold"
+                        : "bg-secondary-bg text-white hover:bg-accent-gold hover:text-black"
+                    }`}
+                  >
+                    {pageNum}
+                  </a>
+                );
               }
 
-              const isCurrentPage = pageNum === currentPage;
-              const href = pageNum === 1 ? '/blog' : `/blog?page=${pageNum}`;
+              return pages;
+            })()}
+          </div>
 
-              pages.push(
-                <a
-                  href={href}
-                  class={`px-4 py-2 rounded transition-colors ${
-                    isCurrentPage
-                      ? 'bg-accent-gold text-black font-bold'
-                      : 'bg-secondary-bg text-white hover:bg-accent-gold hover:text-black'
-                  }`}
-                >
-                  {pageNum}
-                </a>
-              );
-            }
+          {currentPage < totalPages ? (
+            <a
+              href={`/blog?page=${currentPage + 1}`}
+              class="btn-gold px-6 py-3"
+            >
+              Siguiente →
+            </a>
+          ) : (
+            <span class="px-6 py-3 text-gray-500 cursor-not-allowed">
+              Siguiente →
+            </span>
+          )}
+        </nav>
+      )
+    }
 
-            return pages;
-          })()}
-        </div>
-
-        {/* Botón Siguiente */}
-        {currentPage < totalPages ? (
-          <a
-            href={`/blog?page=${currentPage + 1}`}
-            class="btn-gold px-6 py-3"
-          >
-            Siguiente →
-          </a>
-        ) : (
-          <span class="px-6 py-3 text-gray-500 cursor-not-allowed">
-            Siguiente →
-          </span>
-        )}
-      </nav>
-    )}
-
-    {/* Info de paginación */}
     <p class="text-center text-gray-400 mt-6">
       Mostrando {posts.length} de {totalPosts} posts totales
     </p>

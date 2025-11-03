@@ -4,39 +4,35 @@ import ProductFilters from "@/components/products/ProductFilters.astro";
 import ProductCardSimple from "@/components/products/ProductCardSimple.astro";
 import { ProductsMusicSchema, type Category } from "@/types";
 
-// SSR para poder usar query params
 export const prerender = false;
 
-// Obtener el parámetro de categoría de la URL
 const url = new URL(Astro.request.url);
 const categoryParam = url.searchParams.get("categoria") || "todos";
 
-// Obtener todas las categorías de productos
 const categoriesUrl = `${import.meta.env.API_URL}/product_categories`;
 const categoriesResponse = await fetch(categoriesUrl);
 const categoriesJson = await categoriesResponse.json();
 
-// Obtener TODOS los productos para calcular conteos reales
 const allProductsForCountUrl = `${import.meta.env.API_URL}/products?per_page=100&_embed`;
 const allProductsForCountResponse = await fetch(allProductsForCountUrl);
 const allProductsForCountJson = await allProductsForCountResponse.json();
 const allProductsParsed = ProductsMusicSchema.parse(allProductsForCountJson);
 
-// Filtrar solo productos en venta
 const productsForSale = allProductsParsed.filter((product) => {
-  return product.acf && !Array.isArray(product.acf) && product.acf.sale === true;
+  return (
+    product.acf && !Array.isArray(product.acf) && product.acf.sale === true
+  );
 });
 
-// Calcular conteos reales por categoría (solo productos en venta)
 const categories = categoriesJson
-  .map((cat: any) => {
-    // Contar cuántos productos en venta tiene esta categoría
+  .map((cat: Category) => {
     const countInSale = productsForSale.filter((product) => {
       if (!product.product_categories) return false;
-      // product_categories puede ser array de IDs o array de objetos
       if (Array.isArray(product.product_categories)) {
         return product.product_categories.some((catRef: any) => {
-          return typeof catRef === 'number' ? catRef === cat.id : catRef.id === cat.id;
+          return typeof catRef === "number"
+            ? catRef === cat.id
+            : catRef.id === cat.id;
         });
       }
       return false;
@@ -44,30 +40,30 @@ const categories = categoriesJson
 
     return {
       ...cat,
-      count: countInSale, // Reemplazar con el conteo real
+      count: countInSale,
     };
   })
-  .filter((cat: any) => cat.count > 0); // Solo categorías con productos en venta
+  .filter((cat: any) => cat.count > 0);
 
-// Obtener productos según el filtro (ya tenemos productsForSale calculado arriba)
 let products: any[] = [];
 let pageTitle = "Todos los Productos";
 
 if (categoryParam === "todos") {
-  // Usar todos los productos en venta ya calculados
   products = productsForSale;
 } else {
-  // Filtrar productos por categoría específica
-  const selectedCategory = categories.find((cat: Category) => cat.slug === categoryParam);
+  const selectedCategory = categories.find(
+    (cat: Category) => cat.slug === categoryParam
+  );
   if (selectedCategory) {
     pageTitle = selectedCategory.name;
 
-    // Filtrar de los productos en venta por categoría
     products = productsForSale.filter((product) => {
       if (!product.product_categories) return false;
       if (Array.isArray(product.product_categories)) {
         return product.product_categories.some((catRef: any) => {
-          return typeof catRef === 'number' ? catRef === selectedCategory.id : catRef.id === selectedCategory.id;
+          return typeof catRef === "number"
+            ? catRef === selectedCategory.id
+            : catRef.id === selectedCategory.id;
         });
       }
       return false;
@@ -76,31 +72,31 @@ if (categoryParam === "todos") {
 }
 ---
 
-<Layout
-  title="Tienda - Gran Rah"
-  subtitle="Store"
->
+<Layout title="Tienda - Gran Rah" subtitle="Store">
   <div class="py-8">
-    <!-- Filtros de categoría -->
     <ProductFilters categories={categories} activeCategory={categoryParam} />
-
-    <!-- Grid de productos -->
     <div id="productos" class="container mx-auto px-4 scroll-mt-24">
-      <h2 class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center">
+      <h2
+        class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center"
+      >
         {pageTitle}
       </h2>
 
-      {products.length > 0 ? (
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {products.map((product, index) => (
-            <ProductCardSimple product={product} index={index} />
-          ))}
-        </div>
-      ) : (
-        <div class="text-center py-12">
-          <p class="text-xl text-gray-400">No hay productos disponibles en esta categoría.</p>
-        </div>
-      )}
+      {
+        products.length > 0 ? (
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {products.map((product, index) => (
+              <ProductCardSimple product={product} index={index} />
+            ))}
+          </div>
+        ) : (
+          <div class="text-center py-12">
+            <p class="text-xl text-gray-400">
+              No hay productos disponibles en esta categoría.
+            </p>
+          </div>
+        )
+      }
     </div>
   </div>
 </Layout>

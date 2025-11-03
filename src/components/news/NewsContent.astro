@@ -1,5 +1,10 @@
 ---
-import { formatDate, stripHtml, truncateWords, decodeHtmlEntities } from "@/helpers";
+import {
+  formatDate,
+  stripHtml,
+  truncateWords,
+  decodeHtmlEntities,
+} from "@/helpers";
 
 interface Props {
   title: string;
@@ -10,32 +15,26 @@ interface Props {
 
 const { title, date, excerpt, slug } = Astro.props;
 
-// Procesar contenido
 const formattedDate = formatDate(date);
 const cleanTitle = decodeHtmlEntities(title);
 const cleanExcerpt = truncateWords(stripHtml(excerpt), 30);
 ---
 
 <div class="p-8 lg:p-12 flex flex-col justify-center">
-  <!-- Fecha -->
   <p class="text-gray-400 text-sm mb-4">{formattedDate}</p>
 
-  <!-- Título -->
-  <h3 class="text-3xl lg:text-4xl font-black text-white mb-4 group-hover:text-accent-gold transition-colors">
+  <h3
+    class="text-3xl lg:text-4xl font-black text-white mb-4 group-hover:text-accent-gold transition-colors"
+  >
     {cleanTitle}
   </h3>
 
-  <!-- Excerpt -->
   <p class="text-gray-300 text-lg mb-6 leading-relaxed">
     {cleanExcerpt}
   </p>
 
-  <!-- Botones -->
   <div class="flex gap-4">
-    <a
-      href={`/noticia/${slug}`}
-      class="btn-gold px-8 py-3 inline-block"
-    >
+    <a href={`/noticia/${slug}`} class="btn-gold px-8 py-3 inline-block">
       Leer completa
     </a>
     <a

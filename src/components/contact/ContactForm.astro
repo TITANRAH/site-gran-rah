@@ -22,7 +22,6 @@ const { title = "Contacto" } = Astro.props;
       </p>
 
       <form method="post" class="space-y-6" novalidate>
-        <!-- Nombre -->
         <div class="flex flex-col space-y-2">
           <label
             for="name"
@@ -40,7 +39,6 @@ const { title = "Contacto" } = Astro.props;
           />
         </div>
 
-        <!-- Teléfono -->
         <div class="flex flex-col space-y-2">
           <label
             for="phone"
@@ -57,7 +55,6 @@ const { title = "Contacto" } = Astro.props;
           />
         </div>
 
-        <!-- Email -->
         <div class="flex flex-col space-y-2">
           <label
             for="email"
@@ -75,7 +72,6 @@ const { title = "Contacto" } = Astro.props;
           />
         </div>
 
-        <!-- Asunto -->
         <div class="flex flex-col space-y-2">
           <label
             for="subject"
@@ -93,7 +89,6 @@ const { title = "Contacto" } = Astro.props;
           />
         </div>
 
-        <!-- Mensaje -->
         <div class="flex flex-col space-y-2">
           <label
             for="message"
@@ -110,7 +105,6 @@ const { title = "Contacto" } = Astro.props;
             required></textarea>
         </div>
 
-        <!-- Botón de envío -->
         <div class="pt-4">
           <button
             id="submit-btn"
@@ -144,7 +138,6 @@ const { title = "Contacto" } = Astro.props;
         </div>
       </form>
 
-      <!-- Decoración: Línea dorada animada -->
       <div
         class="mt-8 h-1 bg-gradient-to-r from-transparent via-accent-gold to-transparent"
       >
@@ -160,7 +153,9 @@ const { title = "Contacto" } = Astro.props;
 
   function initContactForm() {
     const form = document.querySelector("#contacto form");
-    const submitBtn = document.querySelector("#submit-btn") as HTMLButtonElement;
+    const submitBtn = document.querySelector(
+      "#submit-btn"
+    ) as HTMLButtonElement;
     const btnText = document.querySelector("#btn-text") as HTMLSpanElement;
     const btnLoader = document.querySelector("#btn-loader") as HTMLSpanElement;
 
@@ -169,77 +164,73 @@ const { title = "Contacto" } = Astro.props;
       return;
     }
 
-    // Función para mostrar/ocultar el loading
     const setLoading = (loading: boolean) => {
-    if (loading) {
-      submitBtn.disabled = true;
-      btnText.classList.add("hidden");
-      btnLoader.classList.remove("hidden");
-    } else {
-      submitBtn.disabled = false;
-      btnText.classList.remove("hidden");
-      btnLoader.classList.add("hidden");
-    }
-  };
-
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    const formElement = e.target as HTMLFormElement;
-    const formData = new FormData(formElement);
-
-    // Configurar notificaciones
-    const notyf = new Notyf({
-      position: {
-        x: "right",
-        y: "top",
-      },
-      duration: 4000,
-      ripple: false,
-      dismissible: true,
-    });
-
-    // Activar loading
-    setLoading(true);
-
-    try {
-      // Llamar a la acción de Astro
-      const { data, error } = await actions.contact.sendEmail(formData);
-
-      // Obtener errores de validación
-      const inputErrors = isInputError(error) ? error.issues : [];
-
-      // Mostrar errores de validación
-      if (inputErrors && inputErrors.length > 0) {
-        inputErrors.forEach((error) => {
-          notyf.error(error.message);
-        });
-        return;
-      }
-
-      // Mostrar mensaje de éxito o error
-      if (data?.status === "mail_sent") {
-        notyf.success("¡Mensaje enviado correctamente! Te responderé pronto.");
-        formElement.reset();
-      } else if (data?.status === "mail_failed" || data?.status === "validation_failed") {
-        const errorMsg = data?.message || "Error al enviar el mensaje. Inténtalo de nuevo.";
-        notyf.error(errorMsg);
+      if (loading) {
+        submitBtn.disabled = true;
+        btnText.classList.add("hidden");
+        btnLoader.classList.remove("hidden");
       } else {
-        notyf.error("Error al enviar el mensaje. Inténtalo de nuevo.");
+        submitBtn.disabled = false;
+        btnText.classList.remove("hidden");
+        btnLoader.classList.add("hidden");
       }
-    } catch (err) {
-      notyf.error("Error al enviar el mensaje. Inténtalo de nuevo.");
-      console.error("Error en el formulario:", err);
-    } finally {
-      // Desactivar loading
-      setLoading(false);
-    }
-  });
+    };
+
+    form?.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const formElement = e.target as HTMLFormElement;
+      const formData = new FormData(formElement);
+
+      const notyf = new Notyf({
+        position: {
+          x: "right",
+          y: "top",
+        },
+        duration: 4000,
+        ripple: false,
+        dismissible: true,
+      });
+
+      setLoading(true);
+
+      try {
+        const { data, error } = await actions.contact.sendEmail(formData);
+
+        const inputErrors = isInputError(error) ? error.issues : [];
+
+        if (inputErrors && inputErrors.length > 0) {
+          inputErrors.forEach((error) => {
+            notyf.error(error.message);
+          });
+          return;
+        }
+
+        if (data?.status === "mail_sent") {
+          notyf.success(
+            "¡Mensaje enviado correctamente! Te responderé pronto."
+          );
+          formElement.reset();
+        } else if (
+          data?.status === "mail_failed" ||
+          data?.status === "validation_failed"
+        ) {
+          const errorMsg =
+            data?.message || "Error al enviar el mensaje. Inténtalo de nuevo.";
+          notyf.error(errorMsg);
+        } else {
+          notyf.error("Error al enviar el mensaje. Inténtalo de nuevo.");
+        }
+      } catch (err) {
+        notyf.error("Error al enviar el mensaje. Inténtalo de nuevo.");
+        console.error("Error en el formulario:", err);
+      } finally {
+        setLoading(false);
+      }
+    });
   }
 
-  // Inicializar el formulario cuando la página carga
   initContactForm();
 
-  // Re-inicializar cuando se navega con View Transitions
-  document.addEventListener('astro:page-load', initContactForm);
+  document.addEventListener("astro:page-load", initContactForm);
 </script>

@@ -10,31 +10,25 @@ interface Props {
 
 const { title = "Productos", maxProducts } = Astro.props;
 
-// Fetch products destacados (traer más para compensar el filtrado)
 const url = `${import.meta.env.API_URL}/products?per_page=50`;
 const response = await fetch(url);
 const json = await response.json();
 
-// Parse and validate products
 const ProductsArraySchema = z.array(ProductMusicSchema);
 const allProducts = ProductsArraySchema.parse(json);
 
-// Filtrar solo productos en venta (sale = true)
 const productsForSale = allProducts.filter((product) => {
   return product.acf && !Array.isArray(product.acf) && product.acf.sale === true;
 });
 
-// Limitar a maxProducts después del filtrado
 const products = productsForSale.slice(0, maxProducts || 8);
 ---
 
 {products.length > 0 && (
   <section class="py-20 px-6 relative">
-    {/* Background decorativo */}
     <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent-gold/5 to-transparent pointer-events-none"></div>
 
     <div class="max-w-7xl mx-auto relative z-10">
-      {/* Título de sección */}
       <div class="text-center mb-16">
         <h2 class="text-5xl md:text-6xl font-bebas text-white mb-4 tracking-wider relative inline-block">
           {title}
@@ -45,14 +39,12 @@ const products = productsForSale.slice(0, maxProducts || 8);
         </p>
       </div>
 
-      {/* Grid de productos */}
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
         {products.map((product, index) => (
           <ProductCardSimple product={product} index={index} />
         ))}
       </div>
 
-      {/* Botón Ver más en la tienda */}
       <div class="text-center mt-12">
         <a
           href="/tienda"

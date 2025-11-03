@@ -12,21 +12,18 @@ interface Props {
 
 const { title = "Próximos Shows", maxEvents } = Astro.props;
 
-// Obtener y validar eventos desde WordPress
 const url = `${import.meta.env.API_URL}/events`;
 const response = await fetch(url);
 const json = await response.json();
 const eventsData = Array.isArray(json) ? json : [];
 const allEvents = EventsSchema.parse(eventsData);
 
-// Procesar eventos: parsear fechas y ordenar
 interface EventWithDate extends Event {
   parsedDate: Date;
 }
 
 const processedEvents: EventWithDate[] = allEvents
   .map(event => {
-    // Intentar obtener fecha del campo ACF
     const acfDate = !Array.isArray(event.acf) && event.acf ? event.acf.date : undefined;
     const parsedDate = parseEventDate(acfDate) || new Date(event.date);
 
@@ -37,7 +34,6 @@ const processedEvents: EventWithDate[] = allEvents
   })
   .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime()); // Ordenar por fecha ascendente
 
-// Limitar eventos si se especifica maxEvents
 const displayEvents = maxEvents ? processedEvents.slice(0, maxEvents) : processedEvents;
 ---
 
@@ -65,15 +61,12 @@ const displayEvents = maxEvents ? processedEvents.slice(0, maxEvents) : processe
                 data-aos={isEven ? "fade-right" : "fade-left"}
                 data-aos-delay={index * 100}
               >
-                <!-- Tarjeta de fecha -->
                 <EventDateCard day={day} month={month} weekday={weekday} isEven={isEven} />
 
-                <!-- Punto central (solo desktop) -->
                 <div class="hidden md:flex w-2/12 justify-center relative z-10">
                   <div class="w-4 h-4 rounded-full bg-accent-gold border-4 border-primary-bg shadow-lg shadow-accent-gold/50 animate-pulse" />
                 </div>
 
-                <!-- Contenido del evento -->
                 <EventCard event={event} isEven={isEven} />
               </div>
             );

@@ -12,8 +12,7 @@ const { product } = Astro.props;
 // Extraer datos del producto
 const title = product.title.rendered;
 
-// Valores por defecto
-let price = 0;
+let price: number = 0;
 let description = "";
 let spotifyUrl = "";
 let youtubeUrl = "";

@@ -10,268 +10,359 @@ const { product, index } = Astro.props;
 
 const albumTitle = product.title.rendered;
 let isForSale = false;
-let price = 0;
+let price: number = 0;
 let spotifyUrl = "";
 let youtubeUrl = "";
 let albumImage = "";
 
-// Campos específicos de gorras
 let color = "";
 let size = "";
 let theme = "";
 let visor = "";
 
-// Campos específicos de poleras/polerones
 let sizes: string[] = [];
 let colors: string[] = [];
 let material = "";
 
-// Extraer campos ACF
 if (product.acf && !Array.isArray(product.acf)) {
   isForSale = product.acf.sale || false;
-  // El precio puede venir como string o número
-  price = typeof product.acf.price === 'string' ? parseFloat(product.acf.price) : (product.acf.price || 0);
+  price =
+    typeof product.acf.price === "string"
+      ? parseFloat(product.acf.price)
+      : product.acf.price || 0;
   spotifyUrl = product.acf.url_spotify || "";
   youtubeUrl = product.acf.url_youtube || "";
 
-  // Campos de gorras
   color = product.acf.color || "";
   size = product.acf.size || "";
   theme = product.acf.theme || "";
   visor = product.acf.visor || "";
 
-  // Campos de poleras/polerones - manejar tanto string como array
   if (product.acf.sizes) {
-    sizes = typeof product.acf.sizes === 'string'
-      ? product.acf.sizes.split(',').map(s => s.trim()).filter(s => s.length > 0)
-      : product.acf.sizes;
+    sizes =
+      typeof product.acf.sizes === "string"
+        ? product.acf.sizes
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s.length > 0)
+        : product.acf.sizes;
   }
   if (product.acf.colors) {
-    colors = typeof product.acf.colors === 'string'
-      ? product.acf.colors.split(',').map(c => c.trim()).filter(c => c.length > 0)
-      : product.acf.colors;
+    colors =
+      typeof product.acf.colors === "string"
+        ? product.acf.colors
+            .split(",")
+            .map((c) => c.trim())
+            .filter((c) => c.length > 0)
+        : product.acf.colors;
   }
   material = product.acf.material || "";
 
-  if (product.acf.product_image && typeof product.acf.product_image === 'object' && 'large' in product.acf.product_image) {
+  if (
+    product.acf.product_image &&
+    typeof product.acf.product_image === "object" &&
+    "large" in product.acf.product_image
+  ) {
     albumImage = product.acf.product_image.large.url;
   }
 }
 
-// Detectar tipo de producto - priorizar para evitar mostrar múltiples secciones
-const isMusic = !!(spotifyUrl || youtubeUrl);
 const isClothing = !!(sizes.length > 0 || colors.length > 0 || material);
 const isCap = !isClothing && !!(color || visor || theme);
 
-// Fallback a featured_images
-if (!albumImage && product.featured_images && typeof product.featured_images === 'object' && 'large' in product.featured_images) {
+if (
+  !albumImage &&
+  product.featured_images &&
+  typeof product.featured_images === "object" &&
+  "large" in product.featured_images
+) {
   albumImage = product.featured_images.large.url;
 }
 
-const formattedPrice = new Intl.NumberFormat('es-CL', {
-  style: 'currency',
-  currency: 'CLP'
+const formattedPrice = new Intl.NumberFormat("es-CL", {
+  style: "currency",
+  currency: "CLP",
 }).format(price);
 
-// WhatsApp URL
 const whatsappMessage = encodeURIComponent(
   `Hola! Me interesa el disco "${albumTitle}" por ${formattedPrice}. ¿Está disponible?`
 );
 const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
 ---
 
-<article
-  class="product-card group"
-  style={`animation-delay: ${index * 0.1}s`}
->
+<article class="product-card group" style={`animation-delay: ${index * 0.1}s`}>
   <a href={`/producto/${product.slug}`} class="block">
-    {/* Contenedor de imagen */}
-    <div class="product-cover relative overflow-hidden rounded-lg shadow-xl group-hover:shadow-2xl transition-all duration-500">
-      {albumImage ? (
-        <div class="relative aspect-square">
-          <img
-            src={albumImage}
-            alt={albumTitle}
-            class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
-            loading="lazy"
-          />
-          {/* Overlay con gradiente */}
-          <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+    <div
+      class="product-cover relative overflow-hidden rounded-lg shadow-xl group-hover:shadow-2xl transition-all duration-500"
+    >
+      {
+        albumImage ? (
+          <div class="relative aspect-square">
+            <img
+              src={albumImage}
+              alt={albumTitle}
+              class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-out"
+              loading="lazy"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
-          {/* Badge de venta */}
-          {isForSale && (
-            <div class="absolute top-3 right-3 bg-accent-gold text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg">
-              En Venta
+            {isForSale && (
+              <div class="absolute top-3 right-3 bg-accent-gold text-black px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide shadow-lg">
+                En Venta
+              </div>
+            )}
+
+            <div class="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
+              <span
+                class="bg-accent-gold hover:bg-white text-black p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 cursor-pointer flex items-center justify-center"
+                aria-label="Ver detalles del disco"
+              >
+                <svg
+                  class="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </span>
+
+              {spotifyUrl && (
+                <a
+                  href={spotifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bg-[#1DB954] hover:bg-[#1ed760] text-white p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
+                  aria-label="Escuchar en Spotify"
+                  onclick="event.stopPropagation();"
+                >
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
+                  </svg>
+                </a>
+              )}
+              {youtubeUrl && (
+                <a
+                  href={youtubeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="bg-[#FF0000] hover:bg-[#cc0000] text-white p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
+                  aria-label="Ver en YouTube"
+                  onclick="event.stopPropagation();"
+                >
+                  <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
+                  </svg>
+                </a>
+              )}
             </div>
-          )}
-
-          {/* Botones flotantes en hover */}
-          <div class="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-500 transform translate-y-4 group-hover:translate-y-0">
-            {/* Botón Ver Detalles */}
-            <span
-              class="bg-accent-gold hover:bg-white text-black p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 cursor-pointer flex items-center justify-center"
-              aria-label="Ver detalles del disco"
-            >
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-              </svg>
-            </span>
-
-            {spotifyUrl && (
-              <a
-                href={spotifyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="bg-[#1DB954] hover:bg-[#1ed760] text-white p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
-                aria-label="Escuchar en Spotify"
-                onclick="event.stopPropagation();"
-              >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
-                </svg>
-              </a>
-            )}
-            {youtubeUrl && (
-              <a
-                href={youtubeUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                class="bg-[#FF0000] hover:bg-[#cc0000] text-white p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300"
-                aria-label="Ver en YouTube"
-                onclick="event.stopPropagation();"
-              >
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-                </svg>
-              </a>
-            )}
           </div>
-        </div>
-      ) : (
-        <div class="aspect-square bg-gray-800 flex items-center justify-center">
-          <svg class="w-20 h-20 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z"/>
-          </svg>
-        </div>
-      )}
+        ) : (
+          <div class="aspect-square bg-gray-800 flex items-center justify-center">
+            <svg
+              class="w-20 h-20 text-gray-600"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path d="M18 3a1 1 0 00-1.196-.98l-10 2A1 1 0 006 5v9.114A4.369 4.369 0 005 14c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V7.82l8-1.6v5.894A4.37 4.37 0 0015 12c-1.657 0-3 .895-3 2s1.343 2 3 2 3-.895 3-2V3z" />
+            </svg>
+          </div>
+        )
+      }
     </div>
 
-    {/* Información del producto */}
     <div class="product-info mt-4">
-      <h3 class="text-xl md:text-2xl font-bebas text-white mb-2 tracking-wide group-hover:text-accent-gold transition-colors duration-300">
+      <h3
+        class="text-xl md:text-2xl font-bebas text-white mb-2 tracking-wide group-hover:text-accent-gold transition-colors duration-300"
+      >
         {albumTitle}
       </h3>
 
-      {/* Características específicas de gorras */}
-      {isCap && (
-        <div class="mt-2 space-y-1">
-          {color && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/>
-              </svg>
-              <span class="capitalize">{color}</span>
-            </div>
-          )}
-          {visor && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"/>
-                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"/>
-              </svg>
-              <span class="capitalize">Visera {visor}</span>
-            </div>
-          )}
-          {size && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-              </svg>
-              <span>{size}</span>
-            </div>
-          )}
-          {theme && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/>
-              </svg>
-              <span>{theme}</span>
-            </div>
-          )}
-        </div>
-      )}
+      {
+        isCap && (
+          <div class="mt-2 space-y-1">
+            {color && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="capitalize">{color}</span>
+              </div>
+            )}
+            {visor && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                  <path
+                    fill-rule="evenodd"
+                    d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="capitalize">Visera {visor}</span>
+              </div>
+            )}
+            {size && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span>{size}</span>
+              </div>
+            )}
+            {theme && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span>{theme}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
 
-      {/* Características específicas de poleras/polerones */}
-      {isClothing && (
-        <div class="mt-2 space-y-1">
-          {color && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/>
-              </svg>
-              <span class="capitalize">{color}</span>
-            </div>
-          )}
-          {theme && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z" clip-rule="evenodd"/>
-              </svg>
-              <span>{theme}</span>
-            </div>
-          )}
-          {sizes.length > 0 && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z"/>
-              </svg>
-              <span>Tallas: {sizes.join(', ')}</span>
-            </div>
-          )}
-          {colors.length > 0 && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd"/>
-              </svg>
-              <span>Colores: {colors.join(', ')}</span>
-            </div>
-          )}
-          {material && (
-            <div class="flex items-center gap-2 text-sm text-gray-300">
-              <svg class="w-4 h-4 text-accent-gold" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z" clip-rule="evenodd"/>
-              </svg>
-              <span class="capitalize">{material}</span>
-            </div>
-          )}
-        </div>
-      )}
+      {
+        isClothing && (
+          <div class="mt-2 space-y-1">
+            {color && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="capitalize">{color}</span>
+              </div>
+            )}
+            {theme && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M12.395 2.553a1 1 0 00-1.45-.385c-.345.23-.614.558-.822.88-.214.33-.403.713-.57 1.116-.334.804-.614 1.768-.84 2.734a31.365 31.365 0 00-.613 3.58 2.64 2.64 0 01-.945-1.067c-.328-.68-.398-1.534-.398-2.654A1 1 0 005.05 6.05 6.981 6.981 0 003 11a7 7 0 1011.95-4.95c-.592-.591-.98-.985-1.348-1.467-.363-.476-.724-1.063-1.207-2.03zM12.12 15.12A3 3 0 017 13s.879.5 2.5.5c0-1 .5-4 1.25-4.5.5 1 .786 1.293 1.371 1.879A2.99 2.99 0 0113 13a2.99 2.99 0 01-.879 2.121z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span>{theme}</span>
+              </div>
+            )}
+            {sizes.length > 0 && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M10 2a1 1 0 011 1v1.323l3.954 1.582 1.599-.8a1 1 0 01.894 1.79l-1.233.616 1.738 5.42a1 1 0 01-.285 1.05A3.989 3.989 0 0115 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.715-5.349L11 6.477V16h2a1 1 0 110 2H7a1 1 0 110-2h2V6.477L6.237 7.582l1.715 5.349a1 1 0 01-.285 1.05A3.989 3.989 0 015 15a3.989 3.989 0 01-2.667-1.019 1 1 0 01-.285-1.05l1.738-5.42-1.233-.617a1 1 0 01.894-1.788l1.599.799L9 4.323V3a1 1 0 011-1z" />
+                </svg>
+                <span>Tallas: {sizes.join(", ")}</span>
+              </div>
+            )}
+            {colors.length > 0 && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span>Colores: {colors.join(", ")}</span>
+              </div>
+            )}
+            {material && (
+              <div class="flex items-center gap-2 text-sm text-gray-300">
+                <svg
+                  class="w-4 h-4 text-accent-gold"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11 4a1 1 0 10-2 0v4a1 1 0 102 0V7zm-3 1a1 1 0 10-2 0v3a1 1 0 102 0V8zM8 9a1 1 0 00-2 0v2a1 1 0 102 0V9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+                <span class="capitalize">{material}</span>
+              </div>
+            )}
+          </div>
+        )
+      }
 
-      {/* Precio y botón de compra (solo si está en venta) */}
-      {isForSale && price > 0 && (
-        <div class="mt-3 space-y-2">
-          <p class="text-2xl font-bold text-accent-gold">
-            {formattedPrice}
-          </p>
-        </div>
-      )}
+      {
+        isForSale && price > 0 && (
+          <div class="mt-3 space-y-2">
+            <p class="text-2xl font-bold text-accent-gold">{formattedPrice}</p>
+          </div>
+        )
+      }
     </div>
   </a>
 
-  {/* Botón WhatsApp - Fuera del enlace para evitar conflictos */}
-  {isForSale && price > 0 && (
-    <a
-      href={whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
-      class="mt-2 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#25D366]/50 hover:scale-105 active:scale-95"
-    >
-      <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-      </svg>
-      <span>Consultar Disponibilidad</span>
-    </a>
-  )}
+  {
+    isForSale && price > 0 && (
+      <a
+        href={whatsappUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="mt-2 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#25D366]/50 hover:scale-105 active:scale-95"
+      >
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z" />
+        </svg>
+        <span>Consultar Disponibilidad</span>
+      </a>
+    )
+  }
 </article>
 
 <style>
@@ -291,9 +382,8 @@ const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
     }
   }
 
-  /* Efecto de brillo en hover */
   .product-cover::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: -100%;

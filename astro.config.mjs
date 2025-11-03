@@ -3,7 +3,7 @@ import { defineConfig } from "astro/config";
 import node from "@astrojs/node";
 
 export default defineConfig({
-  output: 'server', // SSR con páginas selectivas en SSG usando prerender
+  output: 'server',
   adapter: node({
     mode: 'standalone'
   }),

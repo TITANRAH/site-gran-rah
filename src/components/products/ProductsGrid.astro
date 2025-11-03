@@ -3,38 +3,31 @@ import ProductCard from "./ProductCard.astro";
 import { ProductsMusicSchema, type ProductMusic } from "@/types";
 
 interface Props {
-  categorySlug?: string; // Slug de la categoría (musica, ropa, etc.)
-  title?: string; // Título de la sección
+  categorySlug?: string;
+  title?: string;
 }
 
 const { categorySlug = "musica", title = "Discos Disponibles" } = Astro.props;
 
-// Primero obtenemos el ID de la categoría por su slug
 const categoryUrl = `${import.meta.env.API_URL}/product_categories?slug=${categorySlug}`;
 const categoryResponse = await fetch(categoryUrl);
 const categoryJson = await categoryResponse.json();
 
 let products: ProductMusic[] = [];
 
-// Si encontramos la categoría, obtenemos sus productos
 if (categoryJson.length > 0) {
   const categoryId = categoryJson[0].id;
 
-  // Obtener productos filtrados por categoría
   const productsUrl = `${import.meta.env.API_URL}/products?categoria-producto=${categoryId}&_embed`;
   const productsResponse = await fetch(productsUrl);
   const productsJson = await productsResponse.json();
 
-  // Validar con Zod (usando ProductsMusicSchema para categoría musica)
   const allProducts = ProductsMusicSchema.parse(productsJson);
 
-  // Filtrar solo productos que están en venta (sale = true)
-  // Excluye productos con sale = false, null, undefined o sin el campo
   products = allProducts.filter((product) => {
     if (!product.acf || Array.isArray(product.acf)) {
       return false;
     }
-    // Solo incluir si sale es explícitamente true
     return product.acf.sale === true;
   });
 }
@@ -42,22 +35,28 @@ if (categoryJson.length > 0) {
 
 <section class="products-section py-12">
   <div class="container mx-auto px-4">
-    {title && (
-      <h2 class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center">
-        {title}
-      </h2>
-    )}
+    {
+      title && (
+        <h2 class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center">
+          {title}
+        </h2>
+      )
+    }
 
-    {products.length > 0 ? (
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products.map((product) => (
-          <ProductCard product={product} />
-        ))}
-      </div>
-    ) : (
-      <div class="text-center py-12">
-        <p class="text-xl text-gray-400">No hay productos disponibles en esta categoría.</p>
-      </div>
-    )}
+    {
+      products.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {products.map((product) => (
+            <ProductCard product={product} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-xl text-gray-400">
+            No hay productos disponibles en esta categoría.
+          </p>
+        </div>
+      )
+    }
   </div>
 </section>

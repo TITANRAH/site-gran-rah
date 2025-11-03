@@ -2,14 +2,13 @@
 interface Props {
   currentPage: number;
   totalPages: number;
-  baseUrl: string; // Ej: "/noticias" o "/eventos"
+  baseUrl: string;
   totalItems?: number;
   itemsPerPage?: number;
 }
 
 const { currentPage, totalPages, baseUrl, totalItems, itemsPerPage } = Astro.props;
 
-// Calcular qué páginas mostrar
 const getVisiblePages = () => {
   const maxVisiblePages = Math.min(totalPages, 7);
   const pages = [];
@@ -43,9 +42,7 @@ const nextHref = `${baseUrl}?page=${currentPage + 1}`;
 
 {totalPages > 1 && (
   <div data-aos="fade-up">
-    {/* Controles de paginación */}
     <nav class="flex justify-center gap-4 mt-12 items-center flex-wrap">
-      {/* Botón Anterior */}
       {currentPage > 1 ? (
         <a href={prevHref} class="btn-gold px-6 py-3">
           ← Anterior
@@ -56,7 +53,6 @@ const nextHref = `${baseUrl}?page=${currentPage + 1}`;
         </span>
       )}
 
-      {/* Números de página */}
       <div class="flex gap-2">
         {visiblePages.map(({ pageNum, isCurrentPage, href }) => (
           <a
@@ -72,7 +68,6 @@ const nextHref = `${baseUrl}?page=${currentPage + 1}`;
         ))}
       </div>
 
-      {/* Botón Siguiente */}
       {currentPage < totalPages ? (
         <a href={nextHref} class="btn-gold px-6 py-3">
           Siguiente →
@@ -84,7 +79,6 @@ const nextHref = `${baseUrl}?page=${currentPage + 1}`;
       )}
     </nav>
 
-    {/* Info de paginación (opcional) */}
     {totalItems && itemsPerPage && (
       <p class="text-center text-gray-400 mt-6">
         Mostrando <span class="text-accent-gold font-bold">

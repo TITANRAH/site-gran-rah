@@ -40,14 +40,14 @@ const {
       </div>
     </div>
 
-    <!-- Sección de Discografía -->
-    {showAlbums && (
-      <div data-aos="fade-up" data-aos-delay="300" class="mt-12">
-        <MusicAlbums title={albumsTitle} showDescription={false} />
-      </div>
-    )}
+    {
+      showAlbums && (
+        <div data-aos="fade-up" data-aos-delay="300" class="mt-12">
+          <MusicAlbums title={albumsTitle} showDescription={false} />
+        </div>
+      )
+    }
 
-    <!-- Decoración de ondas de sonido -->
     <div
       class="absolute bottom-[-50px] left-1/2 -translate-x-1/2 flex gap-2.5 opacity-10 pointer-events-none"
     >
@@ -81,7 +81,6 @@ const {
 </section>
 
 <style>
-  /* Animaciones personalizadas que Tailwind no puede hacer nativamente */
 
   @keyframes fadeIn {
     from {
