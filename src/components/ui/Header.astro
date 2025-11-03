@@ -1,0 +1,244 @@
+---
+import logo from "@/assets/logo.png";
+import { Picture } from "astro:assets";
+import MainNav from "./MainNav.astro";
+
+interface Props {
+  bgImage: string;
+  subtitle: string;
+}
+
+const { bgImage, subtitle } = Astro.props;
+---
+
+<header class="relative">
+  <!-- Navegación Sticky -->
+  <nav
+    id="main-nav"
+    class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+  >
+    <div class="max-w-7xl mx-auto px-4 lg:px-10">
+      <div class="flex items-center justify-between py-2">
+        <!-- Logo -->
+        <a href="/" class="transition-transform hover:scale-105 duration-300">
+          <Picture
+            src={logo}
+            alt="Logo Gran Rah"
+            formats={["avif", "webp"]}
+            class="w-16 lg:w-28 transition-all duration-300"
+            id="logo"
+          />
+        </a>
+
+        <!-- Desktop Menu -->
+        <div class="hidden lg:block">
+          <MainNav />
+        </div>
+
+        <!-- Mobile Hamburger Button -->
+        <button
+          id="menu-toggle"
+          class="lg:hidden text-white p-2 hover:text-accent-gold transition-colors"
+          aria-label="Toggle menu"
+        >
+          <svg
+            id="hamburger-icon"
+            class="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M4 6h16M4 12h16M4 18h16"></path>
+          </svg>
+          <svg
+            id="close-icon"
+            class="w-8 h-8 hidden"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Borde dorado inferior -->
+    <div
+      class="h-0.5 bg-gradient-to-r from-transparent via-accent-gold to-transparent opacity-0 transition-opacity duration-300"
+      id="nav-border"
+    >
+    </div>
+  </nav>
+
+  <!-- Mobile Menu Sidebar -->
+  <div
+    id="mobile-menu"
+    class="fixed top-0 right-0 h-full w-72 bg-black/98 backdrop-blur-lg transform translate-x-full transition-transform duration-300 z-40 lg:hidden shadow-2xl"
+  >
+    <div class="pt-20 px-6">
+      <MainNav />
+    </div>
+    <!-- Decoración -->
+    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent-gold to-transparent"></div>
+  </div>
+
+  <!-- Overlay para cerrar el menú -->
+  <div
+    id="menu-overlay"
+    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-30 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"
+  >
+  </div>
+
+  <!-- Hero Section con imagen de fondo -->
+  <div class="min-h-[400px] lg:min-h-[600px] relative pt-16 lg:pt-24 pb-20">
+    <!-- Imagen de fondo -->
+    <div
+      class="inset-0 absolute bg-center bg-cover"
+      style={{ backgroundImage: `url(${bgImage})` }}
+    >
+    </div>
+
+    <!-- Overlay con gradiente -->
+    <div
+      class="absolute inset-0 bg-gradient-to-b from-black/80 via-black/70 to-black/90"
+    >
+    </div>
+
+    <!-- Contenido del Hero -->
+    <div class="max-w-7xl mx-auto px-6 lg:px-10 relative z-10">
+      <div class="text-center">
+        <h1
+          class="hero-title text-5xl lg:text-7xl xl:text-8xl font-black uppercase text-white mb-6 drop-shadow-2xl"
+          data-aos="fade-down"
+          data-aos-duration="1000"
+        >
+          {subtitle}
+        </h1>
+        <!-- Línea decorativa dorada -->
+        <div
+          class="w-24 h-1 bg-accent-gold mx-auto mb-6"
+          data-aos="zoom-in"
+          data-aos-delay="200"
+        >
+        </div>
+      </div>
+    </div>
+
+    <!-- Partículas decorativas -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div
+        class="absolute top-20 left-10 w-2 h-2 bg-accent-gold rounded-full animate-pulse"
+      >
+      </div>
+      <div
+        class="absolute top-40 right-20 w-3 h-3 bg-accent-gold/50 rounded-full animate-pulse"
+        style="animation-delay: 0.5s;"
+      >
+      </div>
+      <div
+        class="absolute bottom-32 left-1/4 w-2 h-2 bg-accent-gold/30 rounded-full animate-pulse"
+        style="animation-delay: 1s;"
+      >
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Efecto de scroll para el navbar
+  function handleScroll() {
+    const nav = document.getElementById("main-nav");
+    const navBorder = document.getElementById("nav-border");
+    const logo = document.getElementById("logo");
+
+    if (!nav || !navBorder || !logo) return;
+
+    if (window.scrollY > 50) {
+      // Navbar scrolleado
+      nav.classList.add("bg-black/95", "shadow-2xl");
+      navBorder.classList.add("opacity-100");
+      logo.classList.add("w-12", "lg:w-24");
+      logo.classList.remove("w-16", "lg:w-28");
+    } else {
+      // Navbar en top
+      nav.classList.remove("bg-black/95", "shadow-2xl");
+      navBorder.classList.remove("opacity-100");
+      logo.classList.remove("w-12", "lg:w-24");
+      logo.classList.add("w-16", "lg:w-28");
+    }
+  }
+
+  // Manejo del menú móvil
+  function initMobileMenu() {
+    const menuToggle = document.getElementById("menu-toggle");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const menuOverlay = document.getElementById("menu-overlay");
+    const hamburgerIcon = document.getElementById("hamburger-icon");
+    const closeIcon = document.getElementById("close-icon");
+
+    if (!menuToggle || !mobileMenu || !menuOverlay) return;
+
+    // Función para abrir el menú
+    function openMenu() {
+      mobileMenu?.classList.remove("translate-x-full");
+      mobileMenu?.classList.add("translate-x-0");
+      menuOverlay?.classList.remove("opacity-0", "pointer-events-none");
+      menuOverlay?.classList.add("opacity-100", "pointer-events-auto");
+      hamburgerIcon?.classList.add("hidden");
+      closeIcon?.classList.remove("hidden");
+      document.body.style.overflow = "hidden";
+    }
+
+    // Función para cerrar el menú
+    function closeMenu() {
+      mobileMenu?.classList.add("translate-x-full");
+      mobileMenu?.classList.remove("translate-x-0");
+      menuOverlay?.classList.add("opacity-0", "pointer-events-none");
+      menuOverlay?.classList.remove("opacity-100", "pointer-events-auto");
+      hamburgerIcon?.classList.remove("hidden");
+      closeIcon?.classList.add("hidden");
+      document.body.style.overflow = "";
+    }
+
+    // Toggle del menú
+    menuToggle.addEventListener("click", () => {
+      if (mobileMenu?.classList.contains("translate-x-full")) {
+        openMenu();
+      } else {
+        closeMenu();
+      }
+    });
+
+    // Cerrar al hacer clic en el overlay
+    menuOverlay.addEventListener("click", closeMenu);
+
+    // Cerrar al hacer clic en un enlace del menú
+    const menuLinks = mobileMenu?.querySelectorAll("a");
+    menuLinks?.forEach((link) => {
+      link.addEventListener("click", () => {
+        setTimeout(closeMenu, 300);
+      });
+    });
+  }
+
+  // Ejecutar al cargar
+  handleScroll();
+  initMobileMenu();
+  window.addEventListener("scroll", handleScroll);
+
+  // Reinicializar después de transiciones de Astro
+  document.addEventListener("astro:after-swap", () => {
+    handleScroll();
+    initMobileMenu();
+    window.addEventListener("scroll", handleScroll);
+  });
+</script>

@@ -1,0 +1,94 @@
+---
+import { EventsSchema, type Event } from "@/types";
+import { parseEventDate, formatEventDateForTimeline } from "@/helpers";
+import Title from "../ui/Title.astro";
+import EventDateCard from "./EventDateCard.astro";
+import EventCard from "./EventCard.astro";
+
+interface Props {
+  title?: string;
+  maxEvents?: number;
+}
+
+const { title = "Próximos Shows", maxEvents } = Astro.props;
+
+// Obtener y validar eventos desde WordPress
+const url = `${import.meta.env.API_URL}/events`;
+const response = await fetch(url);
+const json = await response.json();
+const eventsData = Array.isArray(json) ? json : [];
+const allEvents = EventsSchema.parse(eventsData);
+
+// Procesar eventos: parsear fechas y ordenar
+interface EventWithDate extends Event {
+  parsedDate: Date;
+}
+
+const processedEvents: EventWithDate[] = allEvents
+  .map(event => {
+    // Intentar obtener fecha del campo ACF
+    const acfDate = !Array.isArray(event.acf) && event.acf ? event.acf.date : undefined;
+    const parsedDate = parseEventDate(acfDate) || new Date(event.date);
+
+    return {
+      ...event,
+      parsedDate
+    };
+  })
+  .sort((a, b) => a.parsedDate.getTime() - b.parsedDate.getTime()); // Ordenar por fecha ascendente
+
+// Limitar eventos si se especifica maxEvents
+const displayEvents = maxEvents ? processedEvents.slice(0, maxEvents) : processedEvents;
+---
+
+{displayEvents.length > 0 ? (
+  <section id="eventos" class="py-16 px-4 pt-32">
+    <div class="container mx-auto max-w-6xl">
+      <Title title={title} />
+
+      <div class="relative">
+        <!-- Línea vertical central (solo desktop) -->
+        <div
+          class="hidden md:block absolute left-1/2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-accent-gold via-accent-gold/50 to-transparent transform -translate-x-1/2"
+          aria-hidden="true"
+        />
+
+        <!-- Lista de eventos -->
+        <div class="space-y-12">
+          {displayEvents.map((event, index) => {
+            const { day, month, weekday } = formatEventDateForTimeline(event.parsedDate);
+            const isEven = index % 2 === 0;
+
+            return (
+              <div
+                class={`flex flex-col md:flex-row items-center gap-6 md:gap-8 ${isEven ? 'md:flex-row' : 'md:flex-row-reverse'}`}
+                data-aos={isEven ? "fade-right" : "fade-left"}
+                data-aos-delay={index * 100}
+              >
+                <!-- Tarjeta de fecha -->
+                <EventDateCard day={day} month={month} weekday={weekday} isEven={isEven} />
+
+                <!-- Punto central (solo desktop) -->
+                <div class="hidden md:flex w-2/12 justify-center relative z-10">
+                  <div class="w-4 h-4 rounded-full bg-accent-gold border-4 border-primary-bg shadow-lg shadow-accent-gold/50 animate-pulse" />
+                </div>
+
+                <!-- Contenido del evento -->
+                <EventCard event={event} isEven={isEven} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  </section>
+) : (
+  <section class="py-16 px-4">
+    <div class="container mx-auto max-w-6xl text-center">
+      <h2 class="text-3xl md:text-4xl font-black uppercase text-accent-gold mb-6">
+        {title}
+      </h2>
+      <p class="text-gray-400 text-xl">No hay eventos programados próximamente.</p>
+    </div>
+  </section>
+)}

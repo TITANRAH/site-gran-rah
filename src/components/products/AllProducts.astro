@@ -1,0 +1,80 @@
+---
+import ProductCardSimple from "./ProductCardSimple.astro";
+import { ProductMusicSchema } from "@/types";
+import { z } from "zod";
+
+interface Props {
+  title?: string;
+  maxProducts?: number;
+}
+
+const { title = "Productos", maxProducts } = Astro.props;
+
+// Fetch products destacados (traer más para compensar el filtrado)
+const url = `${import.meta.env.API_URL}/products?per_page=50`;
+const response = await fetch(url);
+const json = await response.json();
+
+// Parse and validate products
+const ProductsArraySchema = z.array(ProductMusicSchema);
+const allProducts = ProductsArraySchema.parse(json);
+
+// Filtrar solo productos en venta (sale = true)
+const productsForSale = allProducts.filter((product) => {
+  return product.acf && !Array.isArray(product.acf) && product.acf.sale === true;
+});
+
+// Limitar a maxProducts después del filtrado
+const products = productsForSale.slice(0, maxProducts || 8);
+---
+
+{products.length > 0 && (
+  <section class="py-20 px-6 relative">
+    {/* Background decorativo */}
+    <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent-gold/5 to-transparent pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto relative z-10">
+      {/* Título de sección */}
+      <div class="text-center mb-16">
+        <h2 class="text-5xl md:text-6xl font-bebas text-white mb-4 tracking-wider relative inline-block">
+          {title}
+          <span class="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent-gold to-transparent"></span>
+        </h2>
+        <p class="text-gray-400 text-lg mt-6">
+          Discos, poleras, gorras y más
+        </p>
+      </div>
+
+      {/* Grid de productos */}
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        {products.map((product, index) => (
+          <ProductCardSimple product={product} index={index} />
+        ))}
+      </div>
+
+      {/* Botón Ver más en la tienda */}
+      <div class="text-center mt-12">
+        <a
+          href="/tienda"
+          class="inline-flex items-center gap-2 bg-accent-gold hover:bg-white text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-accent-gold/50 hover:scale-105 active:scale-95 text-lg uppercase tracking-wider"
+        >
+          <span>Ver todos los productos en la tienda</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  section {
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0.5) 0%,
+      rgba(20, 20, 20, 0.8) 50%,
+      rgba(0, 0, 0, 0.5) 100%
+    );
+  }
+</style>

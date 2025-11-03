@@ -1,0 +1,73 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Header from "../components/ui/Header.astro";
+import "@/styles/global.css";
+import "aos/dist/aos.css";
+
+interface Props {
+  title: string;
+  subtitle?: string;
+  bgImage?: string;
+}
+
+const { title, bgImage, subtitle } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+	<ClientRouter />
+  </head>
+  <body class="bg-primary-bg text-white">
+    <Header bgImage={bgImage!} subtitle={subtitle!} />
+
+    <main
+      id="main-content"
+      class="bg-secondary-bg p-10 lg:p-20 max-w-7xl mx-auto lg:-mt-28 rounded-xl relative"
+    >
+      <slot />
+    </main>
+    <slot name="after-main-content" />
+
+    <script>
+      import AOS from 'aos';
+
+      // Función para inicializar AOS
+      function initAOS() {
+        AOS.init({
+          duration: 800,
+          once: false,
+          offset: 100,
+          easing: 'ease-in-out',
+          disable: false,
+        });
+      }
+
+      // Inicializar AOS cuando se carga la página por primera vez
+      initAOS();
+
+      // Reinicializar AOS después de las transiciones de Astro
+      document.addEventListener('astro:after-swap', () => {
+        // Destruir instancia anterior
+        AOS.refresh();
+        // Volver a inicializar
+        initAOS();
+      });
+
+      // También refrescar cuando se hace scroll hacia atrás
+      document.addEventListener('astro:page-load', () => {
+        AOS.refresh();
+      });
+    </script>
+  </body>
+</html>
+

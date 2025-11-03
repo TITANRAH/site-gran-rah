@@ -1,0 +1,96 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+  baseUrl: string; // Ej: "/noticias" o "/eventos"
+  totalItems?: number;
+  itemsPerPage?: number;
+}
+
+const { currentPage, totalPages, baseUrl, totalItems, itemsPerPage } = Astro.props;
+
+// Calcular qué páginas mostrar
+const getVisiblePages = () => {
+  const maxVisiblePages = Math.min(totalPages, 7);
+  const pages = [];
+
+  for (let i = 0; i < maxVisiblePages; i++) {
+    let pageNum;
+
+    if (totalPages < 8) {
+      pageNum = i + 1;
+    } else if (currentPage < 5) {
+      pageNum = i + 1;
+    } else if (currentPage > totalPages - 4) {
+      pageNum = totalPages - 6 + i;
+    } else {
+      pageNum = currentPage - 3 + i;
+    }
+
+    const isCurrentPage = pageNum === currentPage;
+    const href = pageNum === 1 ? baseUrl : `${baseUrl}?page=${pageNum}`;
+
+    pages.push({ pageNum, isCurrentPage, href });
+  }
+
+  return pages;
+};
+
+const visiblePages = getVisiblePages();
+const prevHref = currentPage === 2 ? baseUrl : `${baseUrl}?page=${currentPage - 1}`;
+const nextHref = `${baseUrl}?page=${currentPage + 1}`;
+---
+
+{totalPages > 1 && (
+  <div data-aos="fade-up">
+    {/* Controles de paginación */}
+    <nav class="flex justify-center gap-4 mt-12 items-center flex-wrap">
+      {/* Botón Anterior */}
+      {currentPage > 1 ? (
+        <a href={prevHref} class="btn-gold px-6 py-3">
+          ← Anterior
+        </a>
+      ) : (
+        <span class="px-6 py-3 text-gray-500 cursor-not-allowed">
+          ← Anterior
+        </span>
+      )}
+
+      {/* Números de página */}
+      <div class="flex gap-2">
+        {visiblePages.map(({ pageNum, isCurrentPage, href }) => (
+          <a
+            href={href}
+            class={`px-4 py-2 rounded transition-colors ${
+              isCurrentPage
+                ? "bg-accent-gold text-black font-bold"
+                : "bg-secondary-bg text-white hover:bg-accent-gold hover:text-black"
+            }`}
+          >
+            {pageNum}
+          </a>
+        ))}
+      </div>
+
+      {/* Botón Siguiente */}
+      {currentPage < totalPages ? (
+        <a href={nextHref} class="btn-gold px-6 py-3">
+          Siguiente →
+        </a>
+      ) : (
+        <span class="px-6 py-3 text-gray-500 cursor-not-allowed">
+          Siguiente →
+        </span>
+      )}
+    </nav>
+
+    {/* Info de paginación (opcional) */}
+    {totalItems && itemsPerPage && (
+      <p class="text-center text-gray-400 mt-6">
+        Mostrando <span class="text-accent-gold font-bold">
+          {Math.min(itemsPerPage, totalItems - (currentPage - 1) * itemsPerPage)}
+        </span> de <span class="text-accent-gold font-bold">{totalItems}</span> elementos
+      </p>
+    )}
+  </div>
+)}

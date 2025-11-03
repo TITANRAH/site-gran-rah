@@ -1,0 +1,12 @@
+---
+import { PostsSchema } from "@/types";
+import PostCard from "./PostCard.astro";
+
+const url = `${import.meta.env.API_URL}/posts`;
+const response = await fetch(url);
+const json = await response.json();
+
+const data = PostsSchema.parse(json);
+---
+
+{data.map((post) => <PostCard post={post} />)}

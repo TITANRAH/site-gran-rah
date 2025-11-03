@@ -1,0 +1,134 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { NewsListSchema, HomePageSchema, type News } from "@/types";
+import NewsCard from "@/components/news/NewsCard.astro";
+import FeaturedNewsCard from "@/components/news/FeaturedNewsCard.astro";
+import Pagination from "@/components/common/Pagination.astro";
+
+// SSR: renderiza bajo demanda para soportar paginación
+export const prerender = false;
+
+// Obtener datos de la página de WordPress "noticias"
+const pageUrl = `${import.meta.env.API_URL}/pages?slug=noticias`;
+const pageResponse = await fetch(pageUrl);
+const pageJson = await pageResponse.json();
+
+const parsedPageData = HomePageSchema.parse(pageJson[0]);
+
+const title = parsedPageData.title.rendered;
+
+let subtitle = "";
+if (parsedPageData.acf && !Array.isArray(parsedPageData.acf) && parsedPageData.acf.title) {
+  subtitle = parsedPageData.acf.title;
+}
+
+let bgImage = "";
+if (
+  parsedPageData.acf &&
+  !Array.isArray(parsedPageData.acf) &&
+  parsedPageData.acf.image &&
+  typeof parsedPageData.acf.image === "object" &&
+  "full" in parsedPageData.acf.image
+) {
+  bgImage = parsedPageData.acf.image.full.url;
+}
+
+if (
+  !bgImage &&
+  parsedPageData.featured_images &&
+  typeof parsedPageData.featured_images === "object" &&
+  "full" in parsedPageData.featured_images
+) {
+  bgImage = parsedPageData.featured_images.full.url;
+}
+
+// Obtener parámetro de página desde URL (?page=2)
+const currentPage = parseInt(Astro.url.searchParams.get("page") || "1");
+const perPage = 9;
+
+// Fetch de noticias con paginación
+const newsUrl = `${import.meta.env.API_URL}/news?per_page=${perPage}&page=${currentPage}`;
+const newsResponse = await fetch(newsUrl);
+
+// WordPress devuelve headers con info de paginación
+const totalNews = parseInt(newsResponse.headers.get("X-WP-Total") || "0");
+const totalPages = parseInt(newsResponse.headers.get("X-WP-TotalPages") || "1");
+
+const newsJson = await newsResponse.json();
+const allNews = NewsListSchema.parse(newsJson);
+
+// Separar noticia destacada (solo en página 1)
+let featuredNews: News | null = null;
+let regularNews = allNews;
+
+if (currentPage === 1) {
+  featuredNews =
+    allNews.find(
+      (n) => n.acf && !Array.isArray(n.acf) && n.acf.destacada === true
+    ) || null;
+
+  // Filtrar la destacada de las regulares
+  if (featuredNews) {
+    regularNews = allNews.filter((n) => n.id !== featuredNews!.id);
+  }
+}
+---
+
+<Layout title={title} subtitle={subtitle} bgImage={bgImage}>
+  <div class="container mx-auto px-4 py-8">
+    {/* Contenido de la página de WordPress - Solo en página 1 */}
+    {
+      currentPage === 1 && parsedPageData.content && (
+        <div class="mb-16 text-center" data-aos="fade-down">
+          <div
+            class="text-white text-lg leading-relaxed max-w-3xl mx-auto"
+            set:html={parsedPageData.content.rendered}
+          />
+          {/* Separador decorativo */}
+          <div class="flex items-center justify-center gap-4 mt-8">
+            <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32" />
+            <div class="w-2 h-2 bg-accent-gold rounded-full animate-pulse" />
+            <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32" />
+          </div>
+        </div>
+      )
+    }
+
+    {/* Noticia Destacada - Solo en página 1 */}
+    {featuredNews && currentPage === 1 && <FeaturedNewsCard news={featuredNews} />}
+
+    {/* Título de sección */}
+    <h2
+      class="text-3xl md:text-4xl font-black uppercase text-accent-gold text-center mb-12"
+      data-aos="fade-down"
+    >
+      {currentPage === 1 ? "Más Noticias" : `Noticias - Página ${currentPage}`}
+    </h2>
+
+    {/* Grid de noticias */}
+    {
+      regularNews.length > 0 ? (
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+          {regularNews.map((news, index) => (
+            <NewsCard news={news} index={index} />
+          ))}
+        </div>
+      ) : (
+        <div class="text-center py-20" data-aos="fade-up">
+          <p class="text-gray-400 text-xl">
+            No hay noticias disponibles en esta página.
+          </p>
+        </div>
+      )
+    }
+
+    {/* Paginación */}
+    <Pagination
+      currentPage={currentPage}
+      totalPages={totalPages}
+      baseUrl="/noticias"
+      totalItems={totalNews}
+      itemsPerPage={perPage}
+    />
+  </div>
+</Layout>

@@ -1,0 +1,154 @@
+@import "tailwindcss";
+
+@theme {
+  /* Colores principales basados en la imagen */
+  --color-primary-bg: #000000;           /* Fondo negro sólido */
+  --color-secondary-bg: #121212;         /* Fondo gris oscuro */
+  --color-text-light: #ffffff;           /* Texto principal blanco */
+  --color-text-dark: #cccccc;            /* Texto secundario gris claro */
+  --color-accent-gold: #d4af37;          /* Dorado para botones y acentos */
+  --color-accent-gold-hover: #e0b940;    /* Dorado más claro para hover */
+  --color-border-dark: #333333;          /* Bordes grises oscuros */
+  --color-button-sold-out: #4a4a4a;      /* Botones "agotado" */
+  
+  /* Tipografía */
+  --font-family-sans: "Outfit", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-display: "Bebas Neue", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-family-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Espaciado personalizado */
+  --spacing-hero: 8rem;                  /* Espaciado para hero sections */
+  --spacing-section: 6rem;               /* Espaciado entre secciones */
+  
+  /* Border radius */
+  --border-radius-button: 0.5rem;        /* Botones redondeados */
+  --border-radius-card: 0.75rem;         /* Tarjetas redondeadas */
+  
+  /* Sombras */
+  --shadow-gold: 0 4px 14px 0 rgba(212, 175, 55, 0.3);  /* Sombra dorada */
+  --shadow-dark: 0 4px 14px 0 rgba(0, 0, 0, 0.5);       /* Sombra oscura */
+  
+  /* Transiciones */
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* Estilos base para el tema oscuro */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-primary-bg);
+  color: var(--color-text-dark);
+  font-family: var(--font-family-sans);
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Tipografía */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-text-light);
+  font-family: var(--font-family-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+h1 {
+  font-size: 4rem;
+  line-height: 1.1;
+}
+
+h2 {
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+/* Botones con estilo dorado */
+.btn-gold {
+  background-color: var(--color-accent-gold);
+  color: var(--color-primary-bg);
+  padding: 1rem 2rem;
+  border-radius: var(--border-radius-button);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: var(--transition-smooth);
+  box-shadow: var(--shadow-gold);
+}
+
+.btn-gold:hover {
+  background-color: var(--color-accent-gold-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px 0 rgba(212, 175, 55, 0.4);
+}
+
+/* Inputs con estilo oscuro */
+.input-dark {
+  background-color: var(--color-border-dark);
+  border: 1px solid var(--color-border-dark);
+  color: var(--color-text-light);
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-button);
+  transition: var(--transition-smooth);
+}
+
+.input-dark:focus {
+  outline: none;
+  border-color: var(--color-accent-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+}
+
+/* Cards con estilo oscuro */
+.card-dark {
+  background-color: var(--color-border-dark);
+  border-radius: var(--border-radius-card);
+  padding: 2rem;
+  box-shadow: var(--shadow-dark);
+  transition: var(--transition-smooth);
+}
+
+.card-dark:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px 0 rgba(0, 0, 0, 0.7);
+}
+
+/* Clases de utilidad para fuentes */
+.font-display {
+  font-family: var(--font-family-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.font-body {
+  font-family: var(--font-family-sans);
+  font-weight: 400;
+}
+
+.font-body-bold {
+  font-family: var(--font-family-sans);
+  font-weight: 700;
+}
+
+/* Clases específicas para el hero */
+.hero-title {
+  font-family: var(--font-family-display);
+  font-size: clamp(3rem, 8vw, 8rem);
+  font-weight: 400;
+  line-height: 0.9;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text-light);
+}
+
+.hero-subtitle {
+  font-family: var(--font-family-sans);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-light);
+  opacity: 0.9;
+}

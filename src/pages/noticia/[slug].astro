@@ -1,0 +1,152 @@
+---
+import { NewsSchema } from "@/types";
+import Layout from "@/layouts/Layout.astro";
+import { Picture } from "astro:assets";
+import { formatDate, decodeHtmlEntities } from "@/helpers";
+
+// SSR: renderiza bajo demanda
+export const prerender = false;
+
+const { slug } = Astro.params;
+
+const url = `${import.meta.env.API_URL}/news?slug=${slug}`;
+const response = await fetch(url);
+const json = await response.json();
+
+const news = NewsSchema.safeParse(json[0]);
+if (!news.success) return Astro.redirect("/404");
+
+const { title, featured_images, content, date } = news.data;
+
+// Decodificar título
+const decodedTitle = decodeHtmlEntities(title.rendered);
+
+// Obtener bgImage de forma segura
+const bgImage =
+  featured_images &&
+  typeof featured_images === "object" &&
+  "full" in featured_images
+    ? featured_images.full.url
+    : "";
+---
+
+<Layout title={decodedTitle} bgImage={bgImage} subtitle={decodedTitle}>
+  <article class="space-y-8 max-w-4xl mx-auto px-4 py-8">
+    {/* Fecha de publicación */}
+    <div class="flex items-center justify-center gap-3" data-aos="fade-down">
+      <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-20"></div>
+      <p class="text-gray-400 text-sm uppercase tracking-wider">
+        {formatDate(date)}
+      </p>
+      <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-20"></div>
+    </div>
+
+    {/* Imagen destacada */}
+    {
+      featured_images &&
+        typeof featured_images === "object" &&
+        "full" in featured_images && (
+          <div
+            class="relative overflow-hidden rounded-2xl shadow-2xl"
+            data-aos="zoom-in"
+          >
+            <Picture
+              src={featured_images.full.url}
+              alt={title.rendered}
+              width={featured_images.full.width}
+              height={featured_images.full.height}
+              formats={["avif", "webp"]}
+              class="w-full"
+            />
+            {/* Borde decorativo */}
+            <div class="absolute inset-0 border-4 border-accent-gold/20 rounded-2xl pointer-events-none" />
+          </div>
+        )
+    }
+
+    {/* Contenido de la noticia */}
+    <div
+      class="prose prose-lg prose-invert max-w-none"
+      data-aos="fade-up"
+      data-aos-delay="200"
+    >
+      <div
+        class="text-white leading-relaxed space-y-6"
+        set:html={content.rendered}
+      />
+    </div>
+
+    {/* Separador final */}
+    <div class="flex items-center justify-center gap-4 pt-8" data-aos="fade-up">
+      <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
+      <div class="w-2 h-2 bg-accent-gold rounded-full animate-pulse"></div>
+      <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
+    </div>
+
+    {/* Botón volver */}
+    <div class="text-center pt-8" data-aos="fade-up">
+      <a
+        href="/noticias"
+        class="inline-flex items-center gap-2 px-8 py-3 border-2 border-accent-gold text-accent-gold hover:bg-accent-gold hover:text-black rounded-lg font-bold uppercase transition-all duration-300"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"
+          ></path>
+        </svg>
+        Volver a Noticias
+      </a>
+    </div>
+  </article>
+</Layout>
+
+<style>
+  /* Estilos para el contenido de WordPress */
+  :global(.prose h1),
+  :global(.prose h2),
+  :global(.prose h3),
+  :global(.prose h4) {
+    color: var(--color-accent-gold);
+    font-weight: 900;
+    text-transform: uppercase;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  :global(.prose p) {
+    margin-bottom: 1.5rem;
+    line-height: 1.8;
+  }
+
+  :global(.prose strong) {
+    color: var(--color-accent-gold);
+    font-weight: 700;
+  }
+
+  :global(.prose em) {
+    color: var(--color-text-light);
+  }
+
+  :global(.prose a) {
+    color: var(--color-accent-gold);
+    text-decoration: underline;
+    transition: color 0.3s;
+  }
+
+  :global(.prose a:hover) {
+    color: var(--color-accent-gold-hover);
+  }
+
+  :global(.prose ul),
+  :global(.prose ol) {
+    margin-left: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  :global(.prose li) {
+    margin-bottom: 0.5rem;
+  }
+</style>

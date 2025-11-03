@@ -1,0 +1,71 @@
+---
+import { PostSchema } from "@/types";
+import Layout from "@/layouts/Layout.astro";
+import PostMeta from "@/components/blog/PostMeta.astro";
+import PostCategories from "@/components/blog/PostCategories.astro";
+import { Picture } from "astro:assets";
+
+// esto significa que no se prerenderiza la pagina
+// cuando el sitio se visita bajo demanda ahi se renderiza la pagina
+// osea que no esta prerenderizada
+// puedo hacerlo aqui o en el archivo de config en la propiedad output: server
+// para que todo el sitio sea ssr
+export const prerender = false;
+
+// esto es para ver el slug en la url
+// console.log("slug -> ", Astro.params.slug);
+
+const { slug } = Astro.params;
+
+// si el slug es cualquier cosa que sea blog o una pagina que no existe
+// entonces devolvera un arreglo vacio y no se va a ejecutar el codigo de abajo
+// por lo que dara error
+
+// para solventar eso usamos el safeParse
+// el cual es un metodo que nos permite parsear el json y si hay un error nos lo devuelve
+// y no se va a ejecutar el codigo de abajo
+
+// por lo que usamos safeparse y en caso de no success nos redirigira a la pagina 404
+const url = `${import.meta.env.API_URL}/posts?slug=${slug}`;
+const response = await fetch(url);
+const json = await response.json();
+const post = PostSchema.safeParse(json[0]);
+if (!post.success) return Astro.redirect("/404");
+const { title, featured_images, content, date, category_details } = post.data;
+
+// Obtener bgImage de forma segura
+const bgImage = featured_images && typeof featured_images === 'object' && 'full' in featured_images
+  ? featured_images.full.url
+  : '';
+---
+
+<Layout
+  title={title.rendered}
+  bgImage={bgImage}
+  subtitle={title.rendered}
+>
+  <article class="space-y-5 max-w-4xl mx-auto px-4 py-8">
+    <PostMeta date={date} />
+
+    <div class="space-x-2">
+      {
+        category_details.map((category) => (
+          <PostCategories name={category.name} slug={category.slug} />
+        ))
+      }
+    </div>
+
+    {featured_images && typeof featured_images === 'object' && 'full' in featured_images && (
+      <Picture
+        src={featured_images.full.url}
+        alt={title.rendered}
+        width={featured_images.full.width}
+        height={featured_images.full.height}
+        formats={["avif", "webp"]}
+        class="w-full"
+      />
+    )}
+
+    <div class="text-lg space-y-3 mt-5" set:html={content.rendered} />
+  </article>
+</Layout>

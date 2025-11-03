@@ -1,0 +1,64 @@
+---
+import { Picture } from "astro:assets";
+import { formatDate, stripHtml, truncateWords, decodeHtmlEntities } from "@/helpers";
+import type { News } from "@/types";
+
+interface Props {
+  news: News;
+}
+
+const { news } = Astro.props;
+---
+
+<div class="mb-16" data-aos="fade-up">
+  <div class="relative overflow-hidden rounded-2xl shadow-2xl group">
+    {/* Imagen de fondo */}
+    {news.featured_images &&
+      typeof news.featured_images === "object" &&
+      "full" in news.featured_images && (
+        <Picture
+          src={news.featured_images.full.url}
+          alt={news.title.rendered}
+          width={news.featured_images.full.width}
+          height={news.featured_images.full.height}
+          formats={["avif", "webp"]}
+          class="w-full h-[500px] object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+      )}
+
+    {/* Overlay con gradiente */}
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-transparent">
+      <div class="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
+        {/* Badge Destacada */}
+        <div class="inline-block mb-4">
+          <span class="px-4 py-2 bg-accent-gold text-black font-bold text-sm uppercase rounded-full">
+            🌟 Destacada
+          </span>
+        </div>
+
+        {/* Título */}
+        <h2 class="text-4xl lg:text-5xl font-black text-white mb-4 group-hover:text-accent-gold transition-colors">
+          {decodeHtmlEntities(news.title.rendered)}
+        </h2>
+
+        {/* Fecha */}
+        <p class="text-gray-300 mb-4 text-sm">
+          {formatDate(news.date)}
+        </p>
+
+        {/* Excerpt */}
+        <p class="text-gray-200 text-lg mb-6 leading-relaxed max-w-3xl">
+          {truncateWords(stripHtml(news.excerpt.rendered), 40)}
+        </p>
+
+        {/* Botón */}
+        <a
+          href={`/noticia/${news.slug}`}
+          class="btn-gold inline-block px-8 py-3"
+        >
+          Leer más
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

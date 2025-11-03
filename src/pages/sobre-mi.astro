@@ -1,0 +1,60 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import Moments from "@/components/ui/Moments.astro";
+import { MomentsSchema, type Moment } from "@/types";
+
+// SSG: se pre-renderiza en build time
+export const prerender = true;
+
+const url = `${import.meta.env.API_URL}/pages?slug=sobre-mi`;
+const response = await fetch(url);
+const json = await response.json();
+
+const parsedData = MomentsSchema.parse(json[0]);
+
+const title = parsedData.title.rendered;
+const content = parsedData.content.rendered;
+
+let subtitle = "";
+if (parsedData.acf && !Array.isArray(parsedData.acf) && parsedData.acf.title) {
+  subtitle = parsedData.acf.title;
+}
+
+let bgImage = '';
+if (parsedData.acf && !Array.isArray(parsedData.acf) && parsedData.acf.image && typeof parsedData.acf.image === 'object' && 'full' in parsedData.acf.image) {
+  bgImage = parsedData.acf.image.full.url;
+}
+
+if (!bgImage && parsedData.featured_images && typeof parsedData.featured_images === 'object' && 'full' in parsedData.featured_images) {
+  bgImage = parsedData.featured_images.full.url;
+}
+
+// Extraer momentos de los campos ACF dinámicos
+let moments: Moment[] = [];
+if (parsedData.acf && !Array.isArray(parsedData.acf)) {
+  moments = Object.entries(parsedData.acf)
+    .filter(([key, value]) =>
+      key.startsWith('moment_') &&
+      value &&
+      typeof value === 'object' &&
+      'title' in value &&
+      'description' in value &&
+      'image' in value
+    )
+    .map(([, value]) => value as Moment);
+}
+---
+
+<Layout title={title} subtitle={subtitle} bgImage={bgImage}>
+  <div class="container mx-auto px-4 py-8">
+    {
+      content && (
+        <div class="prose prose-lg max-w-none">
+          <div class="lg:mt-0 text-justify" set:html={content} />
+        </div>
+      )
+    }
+  </div>
+
+  <Moments slot="after-main-content" moments={moments} title="Algunos de mis Momentos" />
+</Layout>

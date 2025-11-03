@@ -1,0 +1,156 @@
+---
+import Title from "../ui/Title.astro";
+import SpotifyPlayer from "./SpotifyPlayer.astro";
+import YouTubePlayer from "./YouTubePlayer.astro";
+import MusicAlbums from "./MusicAlbums.astro";
+
+interface Props {
+  spotifyUrl?: string;
+  youtubeUrl?: string;
+  title?: string;
+  showAlbums?: boolean;
+  albumsTitle?: string;
+}
+
+const {
+  spotifyUrl = "https://open.spotify.com/embed/artist/6JjrF0EnCW3Ylj9gj3FXWZ?utm_source=generator",
+  youtubeUrl = "https://www.youtube.com/embed/yvS-tOdqEAk?si=uDJBbgzRd4HODa0U",
+  title = "Escucha mi música",
+  showAlbums = true,
+  albumsTitle = "Discografía",
+} = Astro.props;
+---
+
+<section
+  id="musica"
+  class="relative py-16 px-4 md:py-12 md:px-1 bg-gradient-to-br from-black/90 to-gray-900/95 overflow-hidden"
+>
+  <div class="container mx-auto max-w-6xl">
+    <div data-aos="fade-down">
+      <Title title={title} />
+    </div>
+
+    <!-- Grid de reproductores -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start mb-16">
+      <div data-aos="fade-right" data-aos-delay="100">
+        <SpotifyPlayer url={spotifyUrl} />
+      </div>
+      <div data-aos="fade-left" data-aos-delay="200">
+        <YouTubePlayer url={youtubeUrl} />
+      </div>
+    </div>
+
+    <!-- Sección de Discografía -->
+    {showAlbums && (
+      <div data-aos="fade-up" data-aos-delay="300" class="mt-12">
+        <MusicAlbums title={albumsTitle} showDescription={false} />
+      </div>
+    )}
+
+    <!-- Decoración de ondas de sonido -->
+    <div
+      class="absolute bottom-[-50px] left-1/2 -translate-x-1/2 flex gap-2.5 opacity-10 pointer-events-none"
+    >
+      <div
+        class="wave w-1 h-24 rounded-full animate-wave"
+        style="background: linear-gradient(to top, var(--accent-gold), transparent); animation-delay: 0s;"
+      >
+      </div>
+      <div
+        class="wave w-1 h-24 rounded-full animate-wave"
+        style="background: linear-gradient(to top, var(--accent-gold), transparent); animation-delay: 0.1s;"
+      >
+      </div>
+      <div
+        class="wave w-1 h-24 rounded-full animate-wave"
+        style="background: linear-gradient(to top, var(--accent-gold), transparent); animation-delay: 0.2s;"
+      >
+      </div>
+      <div
+        class="wave w-1 h-24 rounded-full animate-wave"
+        style="background: linear-gradient(to top, var(--accent-gold), transparent); animation-delay: 0.3s;"
+      >
+      </div>
+      <div
+        class="wave w-1 h-24 rounded-full animate-wave"
+        style="background: linear-gradient(to top, var(--accent-gold), transparent); animation-delay: 0.4s;"
+      >
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Animaciones personalizadas que Tailwind no puede hacer nativamente */
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out;
+  }
+
+  @keyframes gradient {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+  }
+
+  @keyframes bounceSlow {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-bounce-slow {
+    animation: bounceSlow 2s ease-in-out infinite;
+  }
+
+  @keyframes rotate {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  .animate-rotate {
+    animation: rotate 8s linear infinite;
+  }
+
+  @keyframes wave {
+    0%,
+    100% {
+      transform: scaleY(0.5);
+    }
+    50% {
+      transform: scaleY(1);
+    }
+  }
+
+  .animate-wave {
+    animation: wave 1.5s ease-in-out infinite;
+  }
+</style>

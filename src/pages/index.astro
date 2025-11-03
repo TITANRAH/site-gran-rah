@@ -1,0 +1,64 @@
+---
+import Layout from "../layouts/Layout.astro";
+import FeaturedNews from "@/components/news/FeaturedNews.astro";
+import EventsTimeline from "@/components/events/EventsTimeline.astro";
+import MusicPlayer from "@/components/music/MusicPlayer.astro";
+import ContactForm from "@/components/contact/ContactForm.astro";
+import AllProducts from "@/components/products/AllProducts.astro";
+import { HomePageSchema } from "@/types";
+
+// SSG: se pre-renderiza en build time
+export const prerender = true;
+
+const url = `${import.meta.env.API_URL}/pages?slug=inicio`;
+const response = await fetch(url);
+const json = await response.json();
+
+const parsedData = HomePageSchema.parse(json[0]);
+
+const title = parsedData.title.rendered;
+
+let subtitle = "inicio";
+if (parsedData.acf && !Array.isArray(parsedData.acf) && parsedData.acf.title) {
+  subtitle = parsedData.acf.title;
+}
+
+let bgImage = "";
+if (
+  parsedData.acf &&
+  !Array.isArray(parsedData.acf) &&
+  parsedData.acf.image &&
+  typeof parsedData.acf.image === "object" &&
+  "full" in parsedData.acf.image
+) {
+  bgImage = parsedData.acf.image.full.url;
+}
+
+if (
+  !bgImage &&
+  parsedData.featured_images &&
+  typeof parsedData.featured_images === "object" &&
+  "full" in parsedData.featured_images
+) {
+  bgImage = parsedData.featured_images.full.url;
+}
+---
+
+<Layout title={title} subtitle={subtitle} bgImage={bgImage}>
+  <FeaturedNews title="Noticia Destacada" />
+
+  <EventsTimeline slot="after-main-content" title="Próximos Shows" maxEvents={3} />
+
+  <MusicPlayer
+    slot="after-main-content"
+    title="Escucha mi música"
+    spotifyUrl="https://open.spotify.com/embed/artist/6JjrF0EnCW3Ylj9gj3FXWZ?utm_source=generator"
+    youtubeUrl="https://www.youtube.com/embed/yvS-tOdqEAk?si=uDJBbgzRd4HODa0U"
+    showAlbums={true}
+    albumsTitle="Discografía"
+  />
+
+  <AllProducts slot="after-main-content" title="Todos los Productos" />
+
+  <ContactForm slot="after-main-content" title="Contacto" />
+</Layout>

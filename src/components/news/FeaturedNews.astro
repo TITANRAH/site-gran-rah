@@ -1,0 +1,71 @@
+---
+import { NewsListSchema } from "@/types";
+import Title from "../ui/Title.astro";
+import NewsImage from "./NewsImage.astro";
+import NewsContent from "./NewsContent.astro";
+
+interface Props {
+  title?: string;
+}
+
+const { title = "Noticia Destacada" } = Astro.props;
+
+// Obtener y validar noticias desde WordPress
+const url = `${import.meta.env.API_URL}/news?per_page=10`;
+const response = await fetch(url);
+const json = await response.json();
+const allNews = NewsListSchema.parse(json);
+
+// Buscar noticia destacada o usar la más reciente
+const featuredNews = allNews.find(
+  (n) => n.acf && !Array.isArray(n.acf) && n.acf.destacada === true
+);
+const news = featuredNews || allNews[0];
+
+// Verificar si tiene imagen destacada
+const hasImage = news?.featured_images &&
+  typeof news.featured_images === "object" &&
+  "large" in news.featured_images;
+---
+
+{news ? (
+  <section class="py-16 px-4">
+    <div class="container mx-auto max-w-6xl">
+      <Title title={title} />
+
+      <!-- Card de noticia destacada -->
+      <div
+        class="relative overflow-hidden rounded-2xl shadow-2xl group bg-secondary-bg"
+        data-aos="zoom-in"
+      >
+        <div class="grid grid-cols-1 lg:grid-cols-2">
+          <!-- Imagen -->
+          {hasImage && news.featured_images && typeof news.featured_images === "object" && (
+            <NewsImage
+              featuredImages={news.featured_images}
+              title={news.title.rendered}
+              isFeatured={!!featuredNews}
+            />
+          )}
+
+          <!-- Contenido -->
+          <NewsContent
+            title={news.title.rendered}
+            date={news.date}
+            excerpt={news.excerpt.rendered}
+            slug={news.slug}
+          />
+        </div>
+
+        <!-- Decoración: Línea dorada animada -->
+        <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-accent-gold to-transparent" />
+      </div>
+    </div>
+  </section>
+) : (
+  <section class="py-16 px-4">
+    <div class="container mx-auto max-w-6xl text-center">
+      <p class="text-gray-400 text-xl">No hay noticias disponibles.</p>
+    </div>
+  </section>
+)}

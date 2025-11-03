@@ -1,0 +1,250 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import { GalleryPageSchema } from "@/types";
+import { Picture } from "astro:assets";
+
+// SSG: se pre-renderiza en build time
+export const prerender = true;
+
+const url = `${import.meta.env.API_URL}/pages?slug=galeria`;
+const response = await fetch(url);
+const json = await response.json();
+
+const pageData = GalleryPageSchema.parse(json[0]);
+
+const title = pageData.title.rendered;
+
+let subtitle = "";
+if (pageData.acf && !Array.isArray(pageData.acf) && pageData.acf.title) {
+  subtitle = pageData.acf.title;
+}
+
+let bgImage = "";
+if (
+  pageData.acf &&
+  !Array.isArray(pageData.acf) &&
+  pageData.acf.image &&
+  typeof pageData.acf.image === "object" &&
+  "full" in pageData.acf.image
+) {
+  bgImage = pageData.acf.image.full.url;
+}
+
+if (
+  !bgImage &&
+  pageData.featured_images &&
+  typeof pageData.featured_images === "object" &&
+  "full" in pageData.featured_images
+) {
+  bgImage = pageData.featured_images.full.url;
+}
+
+const gallery = pageData.gallery || [];
+---
+
+<Layout title={title} subtitle={subtitle} bgImage={bgImage}>
+  <div class="container mx-auto px-4 py-8">
+    {/* Contenido de la página */}
+    <!-- {
+      pageData.content && (
+        <div class="mb-16 text-center" data-aos="fade-down">
+          <div
+            class="text-white text-lg leading-relaxed max-w-3xl mx-auto"
+            set:html={pageData.content.rendered}
+          />
+          {/* Separador decorativo */}
+          <div class="flex items-center justify-center gap-4 mt-8">
+            <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
+            <div class="w-2 h-2 bg-accent-gold rounded-full animate-pulse"></div>
+            <div class="h-px bg-gradient-to-r from-transparent via-accent-gold to-transparent w-32"></div>
+          </div>
+        </div>
+      )
+    } -->
+
+    {/* Galería con diseño masonry */}
+    {
+      gallery.length > 0 ? (
+        <div class="relative">
+          {/* Título de sección */}
+          <h2
+            class="text-3xl md:text-4xl font-black uppercase text-accent-gold text-center mb-12"
+            data-aos="zoom-in"
+          >
+            Galería de Fotos
+          </h2>
+
+          {/* Grid de galería con efecto masonry */}
+          <div
+            id="gallery"
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-auto"
+          >
+            {gallery.map((image, index) => {
+              // Alternar alturas para efecto masonry visual
+              const heights = ['h-64', 'h-80', 'h-72', 'h-96'];
+              const randomHeight = heights[index % heights.length];
+
+              return (
+                <a
+                  href={image.full.url}
+                  data-pswp-width={image.full.width}
+                  data-pswp-height={image.full.height}
+                  class={`gallery-item group relative overflow-hidden rounded-xl ${randomHeight} cursor-pointer`}
+                  data-aos="zoom-in"
+                  data-aos-delay={Math.min(index * 50, 400)}
+                >
+                  <Picture
+                    src={image.large.url}
+                    alt={`Imagen de galería ${index + 1}`}
+                    width={image.large.width}
+                    height={image.large.height}
+                    formats={["avif", "webp"]}
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                  />
+
+                  {/* Overlay con gradiente y efectos */}
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-black/20 opacity-0 group-hover:opacity-100 transition-all duration-500">
+                    {/* Icono de zoom */}
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="w-16 h-16 rounded-full bg-accent-gold/90 flex items-center justify-center transform scale-0 group-hover:scale-100 transition-transform duration-500 delay-100 shadow-2xl">
+                        <svg
+                          class="w-8 h-8 text-black"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2.5"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
+                          />
+                        </svg>
+                      </div>
+                    </div>
+
+                    {/* Número de imagen */}
+                    <div class="absolute bottom-4 left-4">
+                      <span class="text-accent-gold font-black text-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
+                        #{index + 1}
+                      </span>
+                    </div>
+
+                    {/* Borde dorado animado */}
+                    <div class="absolute inset-0 border-2 border-accent-gold/0 group-hover:border-accent-gold/50 rounded-xl transition-all duration-500"></div>
+                  </div>
+
+                  {/* Esquinas decorativas */}
+                  <div class="absolute top-2 left-2 w-6 h-6 border-t-2 border-l-2 border-accent-gold opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div class="absolute top-2 right-2 w-6 h-6 border-t-2 border-r-2 border-accent-gold opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div class="absolute bottom-2 left-2 w-6 h-6 border-b-2 border-l-2 border-accent-gold opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                  <div class="absolute bottom-2 right-2 w-6 h-6 border-b-2 border-r-2 border-accent-gold opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Contador de imágenes */}
+          <div class="text-center mt-12" data-aos="fade-up">
+            <p class="text-gray-400 text-lg">
+              <span class="text-accent-gold font-bold text-2xl">{gallery.length}</span>
+              {" "}
+              {gallery.length === 1 ? "imagen" : "imágenes"} en la galería
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div class="text-center py-20" data-aos="fade-up">
+          <div class="w-24 h-24 mx-auto mb-6 rounded-full bg-secondary-bg flex items-center justify-center">
+            <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <p class="text-gray-400 text-xl">
+            No hay imágenes en la galería.
+          </p>
+        </div>
+      )
+    }
+  </div>
+</Layout>
+
+<script>
+  import PhotoSwipeLightbox from "photoswipe/lightbox";
+  import "photoswipe/style.css";
+
+  function initGallery() {
+    const lightbox = new PhotoSwipeLightbox({
+      gallery: "#gallery",
+      children: "a",
+      pswpModule: () => import("photoswipe"),
+      padding: { top: 50, bottom: 50, left: 50, right: 50 },
+      bgOpacity: 0.95,
+      showHideAnimationType: "zoom",
+      loop: true,
+      pinchToClose: true,
+      closeOnVerticalDrag: true,
+    });
+
+    lightbox.init();
+  }
+
+  // Inicializar galería
+  initGallery();
+
+  // Reinicializar después de transiciones de Astro
+  document.addEventListener("astro:after-swap", () => {
+    initGallery();
+  });
+</script>
+
+<style>
+  /* Estilos adicionales para efectos personalizados */
+  .gallery-item {
+    position: relative;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .gallery-item:hover {
+    box-shadow: 0 20px 25px -5px rgba(212, 175, 55, 0.3),
+      0 10px 10px -5px rgba(212, 175, 55, 0.2);
+    transform: translateY(-4px);
+  }
+
+  /* Animación de brillo al pasar el mouse */
+  .gallery-item::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(212, 175, 55, 0.2),
+      transparent
+    );
+    transition: left 0.7s;
+    z-index: 1;
+  }
+
+  .gallery-item:hover::before {
+    left: 100%;
+  }
+
+  /* Customizar PhotoSwipe */
+  :global(.pswp__bg) {
+    background-color: rgba(0, 0, 0, 0.95) !important;
+  }
+
+  :global(.pswp__button) {
+    background-color: rgba(212, 175, 55, 0.8) !important;
+  }
+
+  :global(.pswp__button:hover) {
+    background-color: rgba(212, 175, 55, 1) !important;
+  }
+</style>
