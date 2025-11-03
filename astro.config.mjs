@@ -11,6 +11,6 @@ export default defineConfig({
     plugins: [tailwindcss()],
   },
   image: {
-    domains: ["granrahback.local"],
+    domains: ["granrahback.cl"],
   },
 });
