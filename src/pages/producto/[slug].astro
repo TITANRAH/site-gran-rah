@@ -4,7 +4,7 @@ import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
 import { WHATSAPP_NUMBER } from "@/constants";
 
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=240');
+Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
 
 const { slug } = Astro.params;
 
