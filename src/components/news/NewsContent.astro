@@ -33,13 +33,16 @@ const cleanExcerpt = truncateWords(stripHtml(excerpt), 30);
     {cleanExcerpt}
   </p>
 
-  <div class="flex gap-4">
-    <a href={`/noticia/${slug}`} class="btn-gold px-8 py-3 inline-block">
+  <div class="flex flex-col md:flex-row gap-4 justify-start items-stretch md:items-center">
+    <a
+      href={`/noticia/${slug}`}
+      class="btn-gold px-8 py-3 text-center rounded-lg font-bold uppercase transition-all duration-300 hover:scale-105 active:scale-95"
+    >
       Leer completa
     </a>
     <a
       href="/noticias"
-      class="px-8 py-3 border-2 border-accent-gold text-accent-gold hover:bg-accent-gold hover:text-black rounded-lg font-bold uppercase transition-all duration-300"
+      class="px-8 py-3 text-center border-2 border-accent-gold text-accent-gold hover:bg-accent-gold hover:text-black rounded-lg font-bold uppercase transition-all duration-300 hover:scale-105 active:scale-95"
     >
       Ver todas
     </a>
