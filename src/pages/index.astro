@@ -9,7 +9,7 @@ import { HomePageSchema } from "@/types";
 
 export const prerender = true;
 
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
 
 const url = `${import.meta.env.API_URL}/pages?slug=inicio`;
 const response = await fetch(url);
