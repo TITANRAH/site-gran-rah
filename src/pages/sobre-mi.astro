@@ -3,10 +3,8 @@ import Layout from "@/layouts/Layout.astro";
 import Moments from "@/components/ui/Moments.astro";
 import { MomentsSchema, type Moment } from "@/types";
 
-// ISR: Pre-renderizar pero revalidar cada 5 minutos (contenido estable)
 export const prerender = true;
 
-// Control de caché con revalidación
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
 const url = `${import.meta.env.API_URL}/pages?slug=sobre-mi`;

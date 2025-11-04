@@ -3,10 +3,8 @@ import Layout from "@/layouts/Layout.astro";
 import PostCard from "@/components/blog/PostCard.astro";
 import { PostsSchema, HomePageSchema } from "@/types";
 
-// ISR: Pre-renderizar pero revalidar cada 60 segundos (contenido frecuente)
 export const prerender = true;
 
-// Control de caché con revalidación
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
 
 const pageUrl = `${import.meta.env.API_URL}/pages?slug=blog`;

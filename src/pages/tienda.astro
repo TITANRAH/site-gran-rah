@@ -4,7 +4,6 @@ import ProductFilters from "@/components/products/ProductFilters.astro";
 import ProductCardSimple from "@/components/products/ProductCardSimple.astro";
 import { ProductsMusicSchema, type Category } from "@/types";
 
-// No prerender por query params dinámicos, pero con caché de 60 segundos
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
 
 const url = new URL(Astro.request.url);

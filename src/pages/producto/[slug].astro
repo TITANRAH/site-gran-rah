@@ -4,7 +4,6 @@ import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
 import { WHATSAPP_NUMBER } from "@/constants";
 
-// Caché de 2 minutos para páginas de productos (balance rendimiento/actualización)
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=240');
 
 const { slug } = Astro.params;

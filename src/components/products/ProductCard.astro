@@ -10,7 +10,6 @@ interface Props {
 
 const { product } = Astro.props;
 
-// Extraer datos del producto
 const title = product.title.rendered;
 
 let price: number = 0;
@@ -19,42 +18,34 @@ let spotifyUrl = "";
 let youtubeUrl = "";
 let productImage = "";
 
-// Extraer campos ACF si existen
 if (product.acf && !Array.isArray(product.acf)) {
   price = typeof product.acf.price === 'number' ? product.acf.price : (typeof product.acf.price === 'string' ? parseFloat(product.acf.price) : 0);
   description = product.acf.description || "";
   spotifyUrl = product.acf.url_spotify || "";
   youtubeUrl = product.acf.url_youtube || "";
 
-  // Intentar obtener la imagen del producto desde ACF
   if (product.acf.product_image && typeof product.acf.product_image === 'object' && 'large' in product.acf.product_image) {
     productImage = product.acf.product_image.large.url;
   }
 }
 
-// Si no hay imagen de producto, usar featured_images
 if (!productImage && product.featured_images && typeof product.featured_images === 'object' && 'large' in product.featured_images) {
   productImage = product.featured_images.large.url;
 }
 
-// Formatear precio en pesos chilenos
 const formattedPrice = new Intl.NumberFormat('es-CL', {
   style: 'currency',
   currency: 'CLP'
 }).format(price);
 
-// Crear mensaje de WhatsApp
 const whatsappMessage = encodeURIComponent(
   `Hola! Estoy interesado en el disco "${title}" por ${formattedPrice}. ¿Está disponible?`
 );
 const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
-// Limpiar descripción HTML
-const cleanDescription = stripHtml(description);
 ---
 
 <article class="product-card bg-secondary-bg rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
-  <!-- Imagen del producto -->
   {productImage && (
     <div class="relative aspect-square overflow-hidden bg-gray-900">
       <Picture
@@ -68,9 +59,7 @@ const cleanDescription = stripHtml(description);
     </div>
   )}
 
-  <!-- Contenido del producto -->
   <div class="p-6">
-    <!-- Título y precio -->
     <div class="mb-4">
       <h3 class="text-2xl font-bebas text-accent-gold mb-2">{title}</h3>
       <p class="text-3xl font-bold text-white">{formattedPrice}</p>
@@ -78,7 +67,6 @@ const cleanDescription = stripHtml(description);
 
 
 
-    <!-- Enlaces de streaming -->
     <div class="flex gap-3 mb-4">
       {spotifyUrl && (
         <a
@@ -108,7 +96,6 @@ const cleanDescription = stripHtml(description);
       )}
     </div>
 
-    <!-- Botón de compra por WhatsApp -->
     <a
       href={whatsappUrl}
       target="_blank"
