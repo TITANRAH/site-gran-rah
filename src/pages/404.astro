@@ -1,0 +1,122 @@
+---
+import Layout from "@/layouts/Layout.astro";
+
+const title = "404 - Página no encontrada";
+const subtitle = "404";
+---
+
+<Layout title={title} subtitle={subtitle}>
+  <div class="min-h-[60vh] flex items-center justify-center px-4">
+    <div class="text-center max-w-2xl mx-auto">
+      <div class="mb-8 relative">
+        <h1
+          class="text-9xl md:text-[12rem] font-bebas text-accent-gold/20 leading-none"
+        >
+          404
+        </h1>
+      </div>
+
+      <h2
+        class="text-3xl md:text-4xl font-bebas text-white mb-4 tracking-wider"
+      >
+        Página no encontrada
+      </h2>
+
+      <p class="text-gray-400 text-lg mb-8 max-w-md mx-auto">
+        Lo sentimos, la página que buscas no existe o ha sido movida.
+      </p>
+
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a
+          href="/"
+          class="inline-flex items-center justify-center gap-2 bg-accent-gold hover:bg-white text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-accent-gold/50 hover:scale-105 active:scale-95 uppercase tracking-wider"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+            ></path>
+          </svg>
+          Ir al Inicio
+        </a>
+
+        <a
+          href="/tienda"
+          class="inline-flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 border-2 border-accent-gold/30 hover:border-accent-gold uppercase tracking-wider"
+        >
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+          </svg>
+          Ver Tienda
+        </a>
+      </div>
+
+      <div class="mt-12 pt-8 border-t border-white/10">
+        <p class="text-gray-500 text-sm mb-4">
+          ¿Necesitas ayuda? Puedes explorar:
+        </p>
+        <div class="flex flex-wrap gap-3 justify-center">
+          <a
+            href="/#discografia"
+            class="text-accent-gold hover:text-white transition-colors text-sm"
+          >
+            Música
+          </a>
+          <span class="text-gray-700">•</span>
+          <a
+            href="/#shows"
+            class="text-accent-gold hover:text-white transition-colors text-sm"
+          >
+            Shows
+          </a>
+          <span class="text-gray-700">•</span>
+          <a
+            href="/blog"
+            class="text-accent-gold hover:text-white transition-colors text-sm"
+          >
+            Blog
+          </a>
+          <span class="text-gray-700">•</span>
+          <a
+            href="/#contacto"
+            class="text-accent-gold hover:text-white transition-colors text-sm"
+          >
+            Contacto
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-pulse {
+    animation: float 3s ease-in-out infinite;
+  }
+</style>

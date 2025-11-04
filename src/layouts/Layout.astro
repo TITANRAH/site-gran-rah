@@ -1,6 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import Header from "../components/ui/Header.astro";
+import Footer from "../components/ui/Footer.astro";
 import "@/styles/global.css";
 import "aos/dist/aos.css";
 
@@ -37,6 +38,8 @@ const { title, bgImage, subtitle } = Astro.props;
       <slot />
     </main>
     <slot name="after-main-content" />
+
+    <Footer />
 
     <script>
       import AOS from "aos";
