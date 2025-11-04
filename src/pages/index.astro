@@ -7,7 +7,11 @@ import ContactForm from "@/components/contact/ContactForm.astro";
 import AllProducts from "@/components/products/AllProducts.astro";
 import { HomePageSchema } from "@/types";
 
+// ISR: Pre-renderizar pero revalidar cada 60 segundos
 export const prerender = true;
+
+// Control de caché con revalidación (balanceado: rendimiento + actualización)
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
 
 const url = `${import.meta.env.API_URL}/pages?slug=inicio`;
 const response = await fetch(url);

@@ -24,6 +24,8 @@ if (categoryJson.length > 0) {
   const albumsJson = await albumsResponse.json();
   const albums = ProductsMusicSchema.parse(albumsJson);
 
+  console.log(albums);
+
   processedAlbums = albums.map(album => processAlbumData(album, WHATSAPP_NUMBER));
 }
 ---

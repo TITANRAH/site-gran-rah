@@ -5,7 +5,8 @@ import NewsCard from "@/components/news/NewsCard.astro";
 import FeaturedNewsCard from "@/components/news/FeaturedNewsCard.astro";
 import Pagination from "@/components/common/Pagination.astro";
 
-export const prerender = false;
+// No prerender por query params dinámicos (paginación), pero con caché de 60 segundos
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
 
 const pageUrl = `${import.meta.env.API_URL}/pages?slug=noticias`;
 const pageResponse = await fetch(pageUrl);

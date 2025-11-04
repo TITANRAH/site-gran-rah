@@ -5,7 +5,8 @@ import PostMeta from "@/components/blog/PostMeta.astro";
 import PostCategories from "@/components/blog/PostCategories.astro";
 import { Picture } from "astro:assets";
 
-export const prerender = false;
+// Caché de 5 minutos para posts de blog (contenido más estable)
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
 
 const { slug } = Astro.params;
 
