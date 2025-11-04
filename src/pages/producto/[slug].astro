@@ -2,6 +2,7 @@
 import { ProductMusicSchema } from "@/types";
 import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
+import { WHATSAPP_NUMBER } from "@/constants";
 
 export const prerender = false;
 
@@ -79,7 +80,7 @@ const formattedPrice = new Intl.NumberFormat('es-CL', {
 const whatsappMessage = encodeURIComponent(
   `Hola! Me interesa ${productTitle}${isForSale && price > 0 ? ` por ${formattedPrice}` : ''}. ¿Está disponible?`
 );
-const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
+const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 
 let subtitle = "Producto";
 if (isMusic) {

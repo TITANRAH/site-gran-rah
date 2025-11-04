@@ -2,6 +2,7 @@
 import { Picture } from "astro:assets";
 import { ProductsMusicSchema, type ProductMusic } from "@/types";
 import { stripHtml } from "@/helpers";
+import { WHATSAPP_NUMBER } from "@/constants";
 
 interface Props {
   title?: string;
@@ -18,7 +19,7 @@ let albums: ProductMusic[] = [];
 
 if (categoryJson.length > 0) {
   const categoryId = categoryJson[0].id;
-  const albumsUrl = `${import.meta.env.API_URL}/products?product_categories=${categoryId}&per_page=4`;
+  const albumsUrl = `${import.meta.env.API_URL}/products?product_categories=${categoryId}&per_page=20`;
   const albumsResponse = await fetch(albumsUrl);
   const albumsJson = await albumsResponse.json();
   albums = ProductsMusicSchema.parse(albumsJson);
@@ -35,48 +36,70 @@ if (categoryJson.length > 0) {
 
     {albums.length > 0 ? (
       <>
-        <div class="albums-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {albums.map((album, index) => {
-          const albumTitle = album.title.rendered;
-          let isForSale = false;
-          let price: number = 0;
-          let description = "";
-          let spotifyUrl = "";
-          let youtubeUrl = "";
-          let albumImage = "";
+        <div class="albums-slider-wrapper relative">
+          <button
+            id="slider-prev"
+            class="slider-control prev"
+            aria-label="Anterior"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+            </svg>
+          </button>
 
-          if (album.acf && !Array.isArray(album.acf)) {
-            isForSale = album.acf.sale || false;
-            price = typeof album.acf.price === 'number' ? album.acf.price : (typeof album.acf.price === 'string' ? parseFloat(album.acf.price) : 0);
-            description = album.acf.description || "";
-            spotifyUrl = album.acf.url_spotify || "";
-            youtubeUrl = album.acf.url_youtube || "";
+          <button
+            id="slider-next"
+            class="slider-control next"
+            aria-label="Siguiente"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+            </svg>
+          </button>
 
-            if (album.acf.product_image && typeof album.acf.product_image === 'object' && 'large' in album.acf.product_image) {
-              albumImage = album.acf.product_image.large.url;
-            }
-          }
+          <div class="albums-slider overflow-hidden">
+            <div class="albums-track flex transition-transform duration-500 ease-out gap-6">
+              {
+                albums.map((album) => {
+                  const albumTitle = album.title.rendered;
+                  let isForSale = false;
+                  let price: number = 0;
+                  let description = "";
+                  let spotifyUrl = "";
+                  let youtubeUrl = "";
+                  let albumImage = "";
 
-          if (!albumImage && album.featured_images && typeof album.featured_images === 'object' && 'large' in album.featured_images) {
-            albumImage = album.featured_images.large.url;
-          }
+                  if (album.acf && !Array.isArray(album.acf)) {
+                    isForSale = album.acf.sale || false;
+                    price = typeof album.acf.price === 'number' ? album.acf.price : (typeof album.acf.price === 'string' ? parseFloat(album.acf.price) : 0);
+                    description = album.acf.description || "";
+                    spotifyUrl = album.acf.url_spotify || "";
+                    youtubeUrl = album.acf.url_youtube || "";
 
-          const formattedPrice = new Intl.NumberFormat('es-CL', {
-            style: 'currency',
-            currency: 'CLP'
-          }).format(price);
+                    if (album.acf.product_image && typeof album.acf.product_image === 'object' && 'large' in album.acf.product_image) {
+                      albumImage = album.acf.product_image.large.url;
+                    }
+                  }
 
-          const whatsappMessage = encodeURIComponent(
-            `Hola! Me interesa el disco "${albumTitle}" por ${formattedPrice}. ¿Está disponible?`
-          );
-          const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
+                  if (!albumImage && album.featured_images && typeof album.featured_images === 'object' && 'large' in album.featured_images) {
+                    albumImage = album.featured_images.large.url;
+                  }
 
-          return (
-            <article
-              class="album-card group"
-              style={`animation-delay: ${index * 0.1}s`}
-            >
-              <a href={`/producto/${album.slug}`} class="block">
+                  const formattedPrice = new Intl.NumberFormat('es-CL', {
+                    style: 'currency',
+                    currency: 'CLP'
+                  }).format(price);
+
+                  const whatsappMessage = encodeURIComponent(
+                    `Hola! Me interesa el disco "${albumTitle}" por ${formattedPrice}. ¿Está disponible?`
+                  );
+                  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
+
+                  return (
+                    <article
+                      class="album-card group flex-none w-[280px] md:w-[320px]"
+                    >
+                      <a href={`/producto/${album.slug}`} class="block">
                 <div class="album-cover relative overflow-hidden rounded-lg shadow-xl group-hover:shadow-2xl transition-all duration-500">
                 {albumImage ? (
                   <div class="relative aspect-square">
@@ -196,22 +219,28 @@ if (categoryJson.length > 0) {
               </a>
 
               {/* Botón WhatsApp - Fuera del enlace para evitar conflictos */}
-              {isForSale && price > 0 && (
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="mt-2 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#25D366]/50 hover:scale-105 active:scale-95"
-                >
-                  <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
-                  </svg>
-                  <span>Consultar Disponibilidad</span>
-                </a>
-              )}
-            </article>
-          );
-        })}
+                      {isForSale && price > 0 && (
+                        <a
+                          href={whatsappUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="mt-2 w-full flex items-center justify-center gap-2 bg-[#25D366] hover:bg-[#128C7E] text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-[#25D366]/50 hover:scale-105 active:scale-95"
+                        >
+                          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                          </svg>
+                          <span>Consultar Disponibilidad</span>
+                        </a>
+                      )}
+                    </article>
+                  );
+                })
+              }
+            </div>
+          </div>
+
+          <div class="slider-dots flex justify-center gap-2 mt-8">
+          </div>
         </div>
 
         {/* Botón Ver más en la tienda */}
@@ -235,21 +264,191 @@ if (categoryJson.length > 0) {
   </div>
 </section>
 
-<style>
-  .album-card {
-    opacity: 0;
-    animation: fadeInUp 0.6s ease-out forwards;
+<script>
+  function initSlider() {
+    const slider = document.querySelector<HTMLElement>('.albums-track');
+    const prevBtn = document.getElementById('slider-prev') as HTMLButtonElement;
+    const nextBtn = document.getElementById('slider-next') as HTMLButtonElement;
+    const dotsContainer = document.querySelector<HTMLElement>('.slider-dots');
+
+    if (!slider || !prevBtn || !nextBtn || !dotsContainer) return;
+
+    const cards = slider.querySelectorAll('.album-card');
+    const cardWidth = 320 + 24;
+    const visibleCards = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
+    const totalSlides = Math.ceil(cards.length / visibleCards);
+    let currentSlide = 0;
+
+    for (let i = 0; i < totalSlides; i++) {
+      const dot = document.createElement('button');
+      dot.className = `slider-dot ${i === 0 ? 'active' : ''}`;
+      dot.setAttribute('aria-label', `Ir a slide ${i + 1}`);
+      dot.addEventListener('click', () => goToSlide(i));
+      dotsContainer.appendChild(dot);
+    }
+
+    function updateSlider() {
+      if (!slider || !prevBtn || !nextBtn || !dotsContainer) return;
+
+      const offset = -currentSlide * cardWidth * visibleCards;
+      slider.style.transform = `translateX(${offset}px)`;
+
+      const dots = dotsContainer.querySelectorAll('.slider-dot');
+      dots.forEach((dot, index) => {
+        dot.classList.toggle('active', index === currentSlide);
+      });
+
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides - 1;
+    }
+
+    function goToSlide(index: number) {
+      currentSlide = Math.max(0, Math.min(index, totalSlides - 1));
+      updateSlider();
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlider();
+      }
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlider();
+      }
+    });
+
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    slider.addEventListener('touchstart', (e: TouchEvent) => {
+      touchStartX = e.touches[0].clientX;
+    });
+
+    slider.addEventListener('touchend', (e: TouchEvent) => {
+      touchEndX = e.changedTouches[0].clientX;
+      if (touchStartX - touchEndX > 50) {
+        if (currentSlide < totalSlides - 1) {
+          currentSlide++;
+          updateSlider();
+        }
+      } else if (touchEndX - touchStartX > 50) {
+        if (currentSlide > 0) {
+          currentSlide--;
+          updateSlider();
+        }
+      }
+    });
+
+    updateSlider();
   }
 
-  @keyframes fadeInUp {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
+  initSlider();
+
+  document.addEventListener('astro:after-swap', () => {
+    initSlider();
+  });
+</script>
+
+<style>
+  .albums-slider-wrapper {
+    position: relative;
+    padding: 0 60px;
+  }
+
+  @media (max-width: 768px) {
+    .albums-slider-wrapper {
+      padding: 0 40px;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0);
+  }
+
+  .slider-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: rgba(212, 175, 55, 0.9);
+    color: black;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    cursor: pointer;
+  }
+
+  .slider-control:hover:not(:disabled) {
+    background: white;
+    border-color: rgb(212, 175, 55);
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .slider-control:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .slider-control.prev {
+    left: 0;
+  }
+
+  .slider-control.next {
+    right: 0;
+  }
+
+  @media (max-width: 768px) {
+    .slider-control {
+      width: 36px;
+      height: 36px;
     }
+
+    .slider-control svg {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .albums-slider {
+    overflow: hidden;
+    padding: 20px 0;
+  }
+
+  .albums-track {
+    display: flex;
+    transition: transform 0.5s ease-out;
+  }
+
+  .slider-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 32px;
+  }
+
+  .slider-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .slider-dot:hover {
+    background: rgba(212, 175, 55, 0.5);
+  }
+
+  .slider-dot.active {
+    background: rgb(212, 175, 55);
+    border-color: white;
+    transform: scale(1.2);
   }
 
   .line-clamp-2 {

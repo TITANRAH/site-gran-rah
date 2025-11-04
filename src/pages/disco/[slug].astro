@@ -3,6 +3,7 @@ import { ProductMusicSchema } from "@/types";
 import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
 import { formatPrice } from "@/helpers";
+import { WHATSAPP_NUMBER } from "@/constants";
 
 export const prerender = false;
 
@@ -55,7 +56,7 @@ if (
 const whatsappMessage = encodeURIComponent(
   `Hola! Me interesa el disco "${albumTitle}" por ${formatPrice(price)}. ¿Está disponible?`
 );
-const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
+const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 ---
 
 <Layout title={albumTitle} bgImage={albumImage} subtitle="Disco">

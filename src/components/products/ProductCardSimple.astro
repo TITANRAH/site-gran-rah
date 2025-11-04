@@ -1,5 +1,6 @@
 ---
 import type { ProductMusic } from "@/types";
+import { WHATSAPP_NUMBER } from "@/constants";
 
 interface Props {
   product: ProductMusic;
@@ -87,7 +88,7 @@ const formattedPrice = new Intl.NumberFormat("es-CL", {
 const whatsappMessage = encodeURIComponent(
   `Hola! Me interesa el disco "${albumTitle}" por ${formattedPrice}. ¿Está disponible?`
 );
-const whatsappUrl = `https://wa.me/56912345678?text=${whatsappMessage}`;
+const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`;
 ---
 
 <article class="product-card group" style={`animation-delay: ${index * 0.1}s`}>
