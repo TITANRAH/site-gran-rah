@@ -4,9 +4,9 @@ import ProductFilters from "@/components/products/ProductFilters.astro";
 import ProductCardSimple from "@/components/products/ProductCardSimple.astro";
 import { ProductsMusicSchema, type Category } from "@/types";
 
-Astro.response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0');
-Astro.response.headers.set('Pragma', 'no-cache');
-Astro.response.headers.set('Expires', '0');
+// Caché corto: se actualiza cada 10 segundos automáticamente
+// Hard refresh (Cmd+Shift+R) muestra cambios inmediatamente
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
 
 const url = new URL(Astro.request.url);
 const categoryParam = url.searchParams.get("categoria") || "todos";

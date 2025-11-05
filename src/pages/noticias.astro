@@ -5,7 +5,9 @@ import NewsCard from "@/components/news/NewsCard.astro";
 import FeaturedNewsCard from "@/components/news/FeaturedNewsCard.astro";
 import Pagination from "@/components/common/Pagination.astro";
 
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=120');
+// Caché corto: se actualiza cada 10 segundos automáticamente
+// Hard refresh (Cmd+Shift+R) muestra cambios inmediatamente
+Astro.response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
 
 const pageUrl = `${import.meta.env.API_URL}/pages?slug=noticias`;
 const pageResponse = await fetch(pageUrl);
