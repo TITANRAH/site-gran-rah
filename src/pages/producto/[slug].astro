@@ -4,8 +4,6 @@ import Layout from "@/layouts/Layout.astro";
 import { Picture } from "astro:assets";
 import { WHATSAPP_NUMBER } from "@/constants";
 
-// Caché de 30 segundos para productos
-// Hard refresh (Cmd+Shift+R) muestra cambios inmediatamente
 Astro.response.headers.set('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
 
 const { slug } = Astro.params;

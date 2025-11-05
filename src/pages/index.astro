@@ -7,9 +7,10 @@ import ContactForm from "@/components/contact/ContactForm.astro";
 import AllProducts from "@/components/products/AllProducts.astro";
 import { HomePageSchema } from "@/types";
 
-// Caché corto: se actualiza cada 10 segundos automáticamente
-// Hard refresh (Cmd+Shift+R) muestra cambios inmediatamente
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=30');
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=10, stale-while-revalidate=30"
+);
 
 const url = `${import.meta.env.API_URL}/pages?slug=inicio`;
 const response = await fetch(url);
@@ -48,7 +49,11 @@ if (
 <Layout title={title} subtitle={subtitle} bgImage={bgImage}>
   <FeaturedNews title="Noticia Destacada" />
 
-  <EventsTimeline slot="after-main-content" title="Próximos Shows" maxEvents={3} />
+  <EventsTimeline
+    slot="after-main-content"
+    title="Próximos Shows"
+    maxEvents={3}
+  />
 
   <MusicPlayer
     slot="after-main-content"
