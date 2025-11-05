@@ -1,11 +1,15 @@
 ---
+import Title from "@/components/ui/Title.astro";
 import Layout from "@/layouts/Layout.astro";
 import { GalleryPageSchema } from "@/types";
 import { Picture } from "astro:assets";
 
 export const prerender = true;
 
-Astro.response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600');
+Astro.response.headers.set(
+  "Cache-Control",
+  "public, s-maxage=300, stale-while-revalidate=600"
+);
 
 const url = `${import.meta.env.API_URL}/pages?slug=galeria`;
 const response = await fetch(url);
@@ -48,12 +52,7 @@ const gallery = pageData.gallery || [];
     {
       gallery.length > 0 ? (
         <div class="relative">
-          <h2
-            class="text-3xl md:text-4xl font-black uppercase text-accent-gold text-center mb-12"
-            data-aos="zoom-in"
-          >
-            Galería de Fotos
-          </h2>
+          <Title title="Galería de Fotos" />
 
           <div
             id="gallery"
