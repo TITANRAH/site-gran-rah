@@ -1,6 +1,7 @@
 ---
 import { Picture } from "astro:assets";
 import type { Moment } from "@/types";
+import Title from "./Title.astro";
 
 interface Props {
   moments: Moment[];
@@ -12,9 +13,7 @@ const { moments, title = "Momentos Especiales" } = Astro.props;
 
 <section class="py-16 bg-primary-bg">
   <div class="container mx-auto px-4">
-    <h2 class="text-4xl font-black uppercase text-center mb-12 text-accent-gold">
-      {title}
-    </h2>
+    <Title title={title} />
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {
@@ -32,12 +31,8 @@ const { moments, title = "Momentos Especiales" } = Astro.props;
             </div>
 
             <div class="p-6">
-              <h3 class="text-2xl font-bold mb-3 text-white">
-                {moment.title}
-              </h3>
-              <p class="text-gray-300 leading-relaxed">
-                {moment.description}
-              </p>
+              <h3 class="text-2xl font-bold mb-3 text-white">{moment.title}</h3>
+              <p class="text-gray-300 leading-relaxed">{moment.description}</p>
             </div>
           </article>
         ))

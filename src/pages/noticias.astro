@@ -4,6 +4,7 @@ import { NewsListSchema, HomePageSchema, type News } from "@/types";
 import NewsCard from "@/components/news/NewsCard.astro";
 import FeaturedNewsCard from "@/components/news/FeaturedNewsCard.astro";
 import Pagination from "@/components/common/Pagination.astro";
+import Title from "@/components/ui/Title.astro";
 
 Astro.response.headers.set(
   "Cache-Control",
@@ -102,7 +103,7 @@ if (currentPage === 1) {
       class="text-3xl md:text-4xl font-black uppercase text-accent-gold text-center mb-12"
       data-aos="fade-down"
     >
-      {currentPage === 1 ? "Más Noticias" : `Noticias - Página ${currentPage}`}
+      {currentPage === 1 ? <Title title="Más Noticias" /> : <Title title={`Noticias - Página ${currentPage}`} />}
     </h2>
 
     {
