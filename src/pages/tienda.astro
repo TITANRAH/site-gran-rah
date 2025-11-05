@@ -2,12 +2,45 @@
 import Layout from "@/layouts/Layout.astro";
 import ProductFilters from "@/components/products/ProductFilters.astro";
 import ProductCardSimple from "@/components/products/ProductCardSimple.astro";
-import { ProductsMusicSchema, type Category } from "@/types";
+import { ProductsMusicSchema, type Category, HomePageSchema } from "@/types";
 
 Astro.response.headers.set(
   "Cache-Control",
   "public, s-maxage=10, stale-while-revalidate=30"
 );
+
+// Fetch página de tienda de WordPress para título e imagen
+const pageUrl = `${import.meta.env.API_URL}/pages?slug=tienda`;
+const pageResponse = await fetch(pageUrl);
+const pageJson = await pageResponse.json();
+const parsedPageData = HomePageSchema.parse(pageJson[0]);
+
+const title = parsedPageData.title.rendered;
+
+let subtitle = "Store";
+if (parsedPageData.acf && !Array.isArray(parsedPageData.acf) && parsedPageData.acf.title) {
+  subtitle = parsedPageData.acf.title;
+}
+
+let bgImage = "";
+if (
+  parsedPageData.acf &&
+  !Array.isArray(parsedPageData.acf) &&
+  parsedPageData.acf.image &&
+  typeof parsedPageData.acf.image === "object" &&
+  "full" in parsedPageData.acf.image
+) {
+  bgImage = parsedPageData.acf.image.full.url;
+}
+
+if (
+  !bgImage &&
+  parsedPageData.featured_images &&
+  typeof parsedPageData.featured_images === "object" &&
+  "full" in parsedPageData.featured_images
+) {
+  bgImage = parsedPageData.featured_images.full.url;
+}
 
 const url = new URL(Astro.request.url);
 const categoryParam = url.searchParams.get("categoria") || "todos";
@@ -75,7 +108,7 @@ if (categoryParam === "todos") {
 }
 ---
 
-<Layout title="Tienda - Gran Rah" subtitle="Store">
+<Layout title={title} subtitle={subtitle} bgImage={bgImage}>
   <div class="py-8">
     <ProductFilters categories={categories} activeCategory={categoryParam} />
     <div id="productos" class="container mx-auto px-4 scroll-mt-24">
