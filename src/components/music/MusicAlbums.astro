@@ -24,71 +24,107 @@ if (categoryJson.length > 0) {
   const albumsJson = await albumsResponse.json();
   const albums = ProductsMusicSchema.parse(albumsJson);
 
-  console.log(albums);
-
-  processedAlbums = albums.map(album => processAlbumData(album, WHATSAPP_NUMBER));
+  processedAlbums = albums.map((album) =>
+    processAlbumData(album, WHATSAPP_NUMBER)
+  );
 }
 ---
 
 <section class="music-albums py-8">
   <div class="container mx-auto px-4">
-    {title && (
-      <h2 class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center tracking-wider">
-        {title}
-      </h2>
-    )}
+    {
+      title && (
+        <h2 class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center tracking-wider">
+          {title}
+        </h2>
+      )
+    }
 
-    {processedAlbums.length > 0 ? (
-      <>
-        <div class="albums-slider-wrapper relative">
-          <button
-            id="slider-prev"
-            class="slider-control prev"
-            aria-label="Anterior"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-            </svg>
-          </button>
+    {
+      processedAlbums.length > 0 ? (
+        <>
+          <div class="albums-slider-wrapper relative">
+            <button
+              id="slider-prev"
+              class="slider-control prev"
+              aria-label="Anterior"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
 
-          <button
-            id="slider-next"
-            class="slider-control next"
-            aria-label="Siguiente"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-            </svg>
-          </button>
+            <button
+              id="slider-next"
+              class="slider-control next"
+              aria-label="Siguiente"
+            >
+              <svg
+                class="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
 
-          <div class="albums-slider overflow-hidden">
-            <div class="albums-track flex transition-transform duration-500 ease-out gap-6">
-              {processedAlbums.map((album) => (
-                <AlbumCard album={album} showDescription={showDescription} />
-              ))}
+            <div class="albums-slider overflow-hidden">
+              <div class="albums-track flex transition-transform duration-500 ease-out gap-6">
+                {processedAlbums.map((album) => (
+                  <AlbumCard album={album} showDescription={showDescription} />
+                ))}
+              </div>
             </div>
+
+            <div class="slider-dots flex justify-center gap-2 mt-8" />
           </div>
 
-          <div class="slider-dots flex justify-center gap-2 mt-8"></div>
+          <div class="text-center mt-12">
+            <a
+              href="/tienda?categoria=musica"
+              class="inline-flex items-center gap-2 bg-accent-gold hover:bg-white text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-accent-gold/50 hover:scale-105 active:scale-95 text-lg uppercase tracking-wider"
+            >
+              <span>Ver todos los discos en la tienda</span>
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+            </a>
+          </div>
+        </>
+      ) : (
+        <div class="text-center py-12">
+          <p class="text-xl text-gray-400">
+            No hay discos disponibles en este momento.
+          </p>
         </div>
-
-        <div class="text-center mt-12">
-          <a
-            href="/tienda?categoria=musica"
-            class="inline-flex items-center gap-2 bg-accent-gold hover:bg-white text-black font-bold py-4 px-8 rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-accent-gold/50 hover:scale-105 active:scale-95 text-lg uppercase tracking-wider"
-          >
-            <span>Ver todos los discos en la tienda</span>
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
-            </svg>
-          </a>
-        </div>
-      </>
-    ) : (
-      <div class="text-center py-12">
-        <p class="text-xl text-gray-400">No hay discos disponibles en este momento.</p>
-      </div>
-    )}
+      )
+    }
   </div>
 </section>
 
@@ -97,7 +133,7 @@ if (categoryJson.length > 0) {
 
   initAlbumSlider();
 
-  document.addEventListener('astro:after-swap', () => {
+  document.addEventListener("astro:after-swap", () => {
     initAlbumSlider();
   });
 </script>
