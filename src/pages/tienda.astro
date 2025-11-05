@@ -9,7 +9,6 @@ Astro.response.headers.set(
   "public, s-maxage=10, stale-while-revalidate=30"
 );
 
-// Fetch página de tienda de WordPress para título e imagen
 const pageUrl = `${import.meta.env.API_URL}/pages?slug=tienda`;
 const pageResponse = await fetch(pageUrl);
 const pageJson = await pageResponse.json();
