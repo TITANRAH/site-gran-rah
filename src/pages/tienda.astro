@@ -3,6 +3,7 @@ import Layout from "@/layouts/Layout.astro";
 import ProductFilters from "@/components/products/ProductFilters.astro";
 import ProductCardSimple from "@/components/products/ProductCardSimple.astro";
 import { ProductsMusicSchema, type Category, HomePageSchema } from "@/types";
+import Title from "@/components/ui/Title.astro";
 
 Astro.response.headers.set(
   "Cache-Control",
@@ -114,7 +115,7 @@ if (categoryParam === "todos") {
       <h2
         class="text-4xl md:text-5xl font-bebas text-accent-gold mb-8 text-center"
       >
-        {pageTitle}
+       <Title title={pageTitle} />
       </h2>
 
       {
